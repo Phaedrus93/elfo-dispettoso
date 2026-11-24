@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Avventure di Pasticcio & Lavinia · Il Libro delle Storie & Scenette Magiche</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'xmas-red': '#B91C1C',
+                        'xmas-darkred': '#881337',
+                        'xmas-pine': '#166534',
+                        'xmas-darkpine': '#14532D',
+                        'xmas-gold': '#D97706',
+                        'xmas-lightgold': '#FEF3C7',
+                        'xmas-cream': '#FDFBF7',
+                        'xmas-ice': '#E0F2FE'
+                    },
+                    fontFamily: {
+                        'display': ['Fredoka', 'sans-serif'],
+                        'book': ['Lora', 'serif'],
+                        'hand': ['Patrick Hand', 'cursive'],
+                        'sans': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Patrick+Hand&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #F8F6F0;
+            color: #1F2937;
+            background-image: radial-gradient(#E5DFD3 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeInTab 0.25s ease-out; }
+        @keyframes fadeInTab {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* SCREEN MODE: Print container is completely hidden on screen */
+        #app-print-container {
+            display: none;
+        }
+
+        /* ================================================================= */
+        /* PRINT ISOLATION ENGINE (@media print)                             */
+        /* ================================================================= */
+        @media print {
+            @page {
+                size: A4;
+                margin: 8mm;
+            }
+            html, body {
+                background: #FFFFFF !important;
+                background-image: none !important;
+                color: #111827 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+
+            /* 1. HIDE ALL SCREEN UI COMPLETELY */
+            #app-screen-container,
+            header,
+            main,
+            nav,
+            footer,
+            #toast,
+            .screen-ui,
+            .no-print {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                max-height: 0 !important;
+                overflow: hidden !important;
+            }
+
+            /* 2. SHOW THE PRINT CONTAINER ONLY */
+            #app-print-container {
+                display: block !important;
+                visibility: visible !important;
+                position: static !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+
+            /* 3. BY DEFAULT HIDE ALL SHEETS INSIDE PRINT CONTAINER */
+            #app-print-container > div {
+                display: none !important;
+            }
+
+            /* 4. ACTIVATE ONLY THE TARGET DOCUMENT */
+            body.print-mode-cards #print-sheet-cards,
+            body.print-mode-sos-cards #print-sheet-sos-cards,
+            body.print-mode-book #print-sheet-book,
+            body.print-mode-adopt #print-sheet-adopt,
+            body.print-mode-diploma #print-sheet-diploma {
+                display: block !important;
+                visibility: visible !important;
+                width: 100% !important;
+            }
+
+            /* STYLES FOR SPECIFIC PRINT SHEETS */
+            .print-grid-cards {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 10px !important;
+            }
+            .print-card-item {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                border: 2px dashed #B91C1C !important;
+                border-radius: 12px !important;
+                padding: 12px !important;
+                background: #FFFFFF !important;
+            }
+            .print-book-page {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                border: 1px solid #E5E7EB !important;
+                border-radius: 14px !important;
+                padding: 14px 18px !important;
+                margin-bottom: 12px !important;
+                background: #FFFFFF !important;
+            }
+            .print-certificate-single-page {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                box-sizing: border-box !important;
+                min-height: 260mm !important;
+                max-height: 270mm !important;
+                height: 265mm !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+                border: 8px double #D97706 !important;
+                padding: 20mm 16mm !important;
+                text-align: center !important;
+                background: #FFFDF9 !important;
+                margin: 0 auto !important;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-gray-800">
+
+    <!-- ======================================================================= -->
+    <!-- SCREEN INTERFACE CONTAINER (100% HIDDEN DURING PRINT)                   -->
+    <!-- ======================================================================= -->
+    <div id="app-screen-container" class="screen-ui">
+
+        <!-- TOAST POPUP NOTIFICATION -->
+        <div id="toast" class="fixed bottom-5 right-5 z-50 bg-gray-900 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 transform translate-y-20 opacity-0 transition duration-300 pointer-events-none">
+            <span id="toast-icon" class="text-xl">✨</span>
+            <span id="toast-msg" class="text-sm font-medium">Operazione completata!</span>
+        </div>
+
+        <!-- SCREEN HEADER -->
+        <header class="bg-gradient-to-r from-xmas-red via-red-700 to-xmas-darkred text-white shadow-lg sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-3">
+                    <!-- Brand Title -->
+                    <div class="flex items-center gap-3 text-center md:text-left">
+                        <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-xs border border-white/30 flex items-center justify-center text-2xl shrink-0 shadow-inner">
+                            🎄
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-center md:justify-start gap-2">
+                                <span class="text-[10px] font-bold uppercase tracking-widest bg-amber-400 text-amber-950 px-2 py-0.5 rounded-full">Edizione Speciale Lavinia</span>
+                                <span class="text-xs text-red-200">Dicembre 2026</span>
+                            </div>
+                            <h1 class="font-display text-xl sm:text-2xl font-bold tracking-tight">
+                                Le Avventure di <span id="header-elf-name">Pasticcio</span> & Lavinia
+                            </h1>
+                        </div>
+                    </div>
+
+                    <!-- Live Progress & Elf Name input -->
+                    <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+                        <!-- Progress Pill -->
+                        <div class="bg-black/25 backdrop-blur-xs px-3.5 py-2 rounded-2xl border border-white/15 flex items-center gap-3">
+                            <div class="text-left">
+                                <div class="text-[10px] font-semibold uppercase tracking-wider text-red-200">Storie Svelate</div>
+                                <div class="text-sm font-display font-bold">
+                                    <span id="progress-done-count">0</span> / 24 <span class="text-xs font-normal opacity-75">giorni</span>
+                                </div>
+                            </div>
+                            <div class="w-20 bg-white/20 h-2.5 rounded-full overflow-hidden">
+                                <div id="progress-bar-fill" class="bg-amber-400 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Elf Name Input -->
+                        <div class="flex items-center gap-1.5 bg-white/15 backdrop-blur-xs px-3 py-1.5 rounded-2xl border border-white/25">
+                            <span class="text-xs">🧝</span>
+                            <input type="text" id="elf-name-input" value="Pasticcio" title="Modifica il nome dell'elfo" class="bg-transparent text-white placeholder-white/60 text-xs font-bold w-20 sm:w-24 focus:outline-hidden text-center cursor-pointer hover:bg-white/10 rounded px-1 py-0.5 transition">
+                            <span class="text-[10px] text-white/70">✏️</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABS NAVIGATION BAR -->
+                <nav class="flex items-center gap-2 overflow-x-auto no-scrollbar pt-3 mt-1 border-t border-white/15">
+                    <button type="button" onclick="switchTab('stories')" id="tab-btn-stories" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 whitespace-nowrap bg-white text-xmas-red shadow cursor-pointer">
+                        <span>📖</span> 24 Storie & Scenette
+                    </button>
+                    <button type="button" onclick="switchTab('cheatsheet')" id="tab-btn-cheatsheet" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 whitespace-nowrap bg-white/15 text-white hover:bg-white/25 cursor-pointer">
+                        <span>📋</span> Regia Rapida (Tabella)
+                    </button>
+                    <button type="button" onclick="switchTab('box')" id="tab-btn-box" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 whitespace-nowrap bg-white/15 text-white hover:bg-white/25 cursor-pointer">
+                        <span>🧰</span> Scatola Trucchi (Prep)
+                    </button>
+                    <button type="button" onclick="switchTab('sos')" id="tab-btn-sos" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 whitespace-nowrap bg-white/15 text-white hover:bg-white/25 cursor-pointer">
+                        <span>⚡</span> 15 Scenette SOS (60s)
+                    </button>
+                    <button type="button" onclick="switchTab('print')" id="tab-btn-print" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 whitespace-nowrap bg-white/15 text-white hover:bg-white/25 cursor-pointer">
+                        <span>🖨️</span> Stampa & Regia Materiali
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+            <!-- TAB 1: 24 STORIE & SCENETTE GIORNALIERE -->
+            <section id="panel-stories" class="tab-panel active space-y-6">
+                <div class="bg-gradient-to-r from-amber-50 via-orange-50 to-amber-100/60 border-2 border-amber-300 rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-amber-500 text-white text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">Metodo Albo Illustrato & Zero Disguidi</span>
+                            <span class="text-xs font-semibold text-amber-900">Per bambini dai 3 ai 6 anni</span>
+                        </div>
+                        <h2 class="font-display text-xl sm:text-2xl font-bold text-gray-900">
+                            La Commedia Visiva di <span class="elf-name-text">Pasticcio</span> & La Storia da Leggere
+                        </h2>
+                        <p class="text-xs sm:text-sm text-gray-700 max-w-3xl leading-relaxed">
+                            Tutto è collegato: ogni mattina Lavinia trova la <strong>scena comica slapstick</strong> (capita all'istante in 1 secondo), legge con voi la <strong>storiella di 1 minuto</strong>, scopre la missione e mette una stellina dorata nel <strong>Barattolo di Luce</strong>. Ogni 6 giorni arriva una <strong>sorpresa di tappa</strong> da tenere per sempre, e a fine mese le foto diventano il <strong>Libro dei Ricordi</strong>.
+                        </p>
+                    </div>
+
+                    <!-- Act Filters -->
+                    <div class="flex flex-wrap items-center gap-1.5 shrink-0 bg-white/80 p-2 rounded-2xl border border-amber-200">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500 px-1">Atto:</span>
+                        <button type="button" onclick="filterAct('all')" id="btn-act-all" class="act-filter-btn px-3 py-1 rounded-xl text-xs font-bold bg-xmas-red text-white cursor-pointer transition">Tutti</button>
+                        <button type="button" onclick="filterAct(1)" id="btn-act-1" class="act-filter-btn px-3 py-1 rounded-xl text-xs font-bold bg-gray-100 text-gray-700 hover:bg-amber-100 cursor-pointer transition">1 (1-7)</button>
+                        <button type="button" onclick="filterAct(2)" id="btn-act-2" class="act-filter-btn px-3 py-1 rounded-xl text-xs font-bold bg-gray-100 text-gray-700 hover:bg-amber-100 cursor-pointer transition">2 (8-14)</button>
+                        <button type="button" onclick="filterAct(3)" id="btn-act-3" class="act-filter-btn px-3 py-1 rounded-xl text-xs font-bold bg-gray-100 text-gray-700 hover:bg-amber-100 cursor-pointer transition">3 (15-21)</button>
+                        <button type="button" onclick="filterAct(4)" id="btn-act-4" class="act-filter-btn px-3 py-1 rounded-xl text-xs font-bold bg-gray-100 text-gray-700 hover:bg-amber-100 cursor-pointer transition">4 (22-24)</button>
+                    </div>
+                </div>
+
+                <!-- Treasure track -->
+                <div id="treasure-track"></div>
+
+                <!-- Cards Grid -->
+                <div id="days-grid-container" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+            </section>
+
+            <!-- TAB 2: REGIA RAPIDA TABELLARE (CHEAT SHEET) -->
+            <section id="panel-cheatsheet" class="tab-panel space-y-6">
+                <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-gray-200 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-wider bg-xmas-pine text-white px-3 py-0.5 rounded-full">Guida Serale Veloce (23:30)</span>
+                            <h2 class="font-display text-2xl font-bold text-gray-900 mt-1">📋 Tabella di Regia a Colpo d'Occhio</h2>
+                            <p class="text-xs text-gray-600 mt-0.5">Tutte le 24 scene con posizione, materiali e documenti stampati necessari.</p>
+                        </div>
+
+                        <div class="relative w-full sm:w-64">
+                            <input type="text" id="cheatsheet-search" oninput="renderCheatSheetTable()" placeholder="Cerca oggetto o tema..." class="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-xs focus:outline-hidden focus:ring-2 focus:ring-xmas-red transition">
+                            <span class="absolute left-3 top-2.5 text-xs text-gray-400">🔍</span>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-2xl border border-gray-200">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-gray-100/80 text-gray-700 font-bold uppercase text-[10px] tracking-wider border-b">
+                                <tr>
+                                    <th class="p-3 text-center">Giorno</th>
+                                    <th class="p-3">Cosa vede Lavinia (Scena Visiva)</th>
+                                    <th class="p-3">Posizione (Spot)</th>
+                                    <th class="p-3">Materiali di Casa & Stampe</th>
+                                    <th class="p-3 text-center">Tempo</th>
+                                    <th class="p-3 text-center">Stato</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cheatsheet-tbody" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: SCATOLA TRUCCHI (PREPARAZIONE PRE-1° DICEMBRE) -->
+            <section id="panel-box" class="tab-panel space-y-6">
+                <div class="bg-gradient-to-r from-emerald-50 via-teal-50 to-green-100/50 border-2 border-emerald-300 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider bg-emerald-700 text-white px-3 py-0.5 rounded-full">Operazione Zero Stress</span>
+                        <h2 class="font-display text-2xl font-bold text-gray-900 mt-1">🧰 La Scatola dei Trucchi (Prepara Tutto Prima del 1° Dicembre!)</h2>
+                        <p class="text-xs sm:text-sm text-gray-700 mt-1 max-w-3xl leading-relaxed">
+                            Per non avere pensieri durante il mese: <strong>stampa i documenti dal Tab 5</strong>, prendi una scatola da scarpe e raccogli questi 16 oggetti di casa. La sera ti basterà allungare la mano nell'armadio: ogni oggetto è già assegnato a un giorno preciso!
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2" id="box-checklist-container"></div>
+                </div>
+            </section>
+
+            <!-- TAB 4: 15 SCENETTE SOS (60 SECONDI FLAT) -->
+            <section id="panel-sos" class="tab-panel space-y-6">
+                <div class="bg-gradient-to-r from-red-50 via-rose-50 to-orange-50 border-2 border-red-300 rounded-3xl p-5 sm:p-6 shadow-sm space-y-3">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-red-600 text-white text-xs font-bold uppercase tracking-wider px-3 py-0.5 rounded-full">Pulsante Emergenza Genitori</span>
+                        <span class="text-xs font-semibold text-red-900">Tempo medio: 45 secondi</span>
+                    </div>
+                    <h2 class="font-display text-2xl font-bold text-gray-900">
+                        ⚡ 15 Scenette SOS da 60 Secondi (Quando sei distrutto dal sonno!)
+                    </h2>
+                    <p class="text-xs sm:text-sm text-gray-700 max-w-3xl leading-relaxed">
+                        Sono le 23:59, stai crollando dal sonno e ti sei appena ricordato dell'elfo? Niente panico: queste 15 scene richiedono solo un oggetto a portata di mano in cucina o in bagno. Puoi stampare anche i loro bigliettini pronti dal Tab 5!
+                    </p>
+                </div>
+
+                <div id="sos-cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </section>
+
+            <!-- TAB 5: CENTRO STAMPA & REGIA MATERIALI -->
+            <section id="panel-print" class="tab-panel space-y-6">
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-200 space-y-6">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider bg-xmas-pine text-white px-3 py-0.5 rounded-full">Layout Professionale A4</span>
+                        <h2 class="font-display text-2xl font-bold text-gray-900 mt-1">🖨️ Centro Stampa Rapida & Mappa delle Stampe</h2>
+                        <p class="text-xs sm:text-sm text-gray-600 mt-1">
+                            Clicca su un pulsante: verrà stampato <strong>SOLO il documento selezionato</strong> su foglio A4 singolo, escludendo il sito web!
+                        </p>
+                    </div>
+
+                    <!-- GUIDA ALLA REGIA DELLE STAMPE -->
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50/60 p-4 sm:p-5 rounded-2xl border border-amber-300">
+                        <h3 class="font-display font-bold text-amber-950 text-base mb-2 flex items-center gap-2">
+                            <span>🗺️</span> Guida alla Regia: Quando e Come Lavinia Riceve Ogni Stampa
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-gray-800">
+                            <div class="bg-white/80 p-3 rounded-xl border border-amber-200">
+                                <div class="font-bold text-xmas-red uppercase text-[10px] mb-1">📅 Mattina del 1° Dicembre (Giorno 1):</div>
+                                <ul class="space-y-1 list-disc pl-3 text-gray-700">
+                                    <li><strong>Video Babbo Natale:</strong> già su TV/chiavetta. Il biglietto dice: <em>«Accendi la TV!»</em>.</li>
+                                    <li><strong>Certificato di Adozione A4:</strong> arrotolato accanto alla scarpa. Il biglietto dice: <em>«Firmalo insieme a Mamma e Papà!»</em>.</li>
+                                    <li><strong>Barattolo di Luce:</strong> con la stellina n° 1 sul fondo. Il biglietto dice: <em>«Metti la stellina n° 1 nel Barattolo!»</em>.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-white/80 p-3 rounded-xl border border-amber-200">
+                                <div class="font-bold text-emerald-800 uppercase text-[10px] mb-1">📅 Giorni dal 2 al 23 Dicembre:</div>
+                                <ul class="space-y-1 list-disc pl-3 text-gray-700">
+                                    <li><strong>I 24 Biglietti Parlati:</strong> ritagliati e conservati nella scatola da scarpe. Ogni sera ne metti uno davanti alla scenetta.</li>
+                                    <li><strong>Le stelline:</strong> tienile in un sacchettino. Ogni sera appoggia sul biglietto quella del giorno: Lavinia la mette nel Barattolo!</li>
+                                    <li><strong>Sorprese di tappa:</strong> giorno 6 (campanellino), 12 (pallina col nome), 18 (ciondolo stella).</li>
+                                    <li><strong>Preavviso Giorno 23:</strong> Pasticcio avvisa nel biglietto che l'indomani Babbo Natale porterà una pergamena d'oro!</li>
+                                </ul>
+                            </div>
+                            <div class="bg-white/80 p-3 rounded-xl border border-amber-200">
+                                <div class="font-bold text-amber-900 uppercase text-[10px] mb-1">📅 Notte della Vigilia (Giorno 24):</div>
+                                <ul class="space-y-1 list-disc pl-3 text-gray-700">
+                                    <li><strong>Gran Diploma d'Onore A4:</strong> arrotolato con nastro rosso e <strong>stretto tra le braccia dell'elfo</strong> sotto l'albero.</li>
+                                    <li><strong>Biglietto Finale Giorno 24:</strong> dice letteralmente: <em>«LAVINIA, SCIOGLI IL FIOCCO ROSSO! Guarda cosa tengo stretto tra le mie braccia: è il tuo DIPLOMA D'ONORE...»</em>.</li>
+                                    <li><strong>Stellina n° 24:</strong> Lavinia mette l'ultima stellina e il Barattolo è pieno di luce: foto finale per il Libro!</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Print Buttons Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+                        <!-- Button 1: 24 Cards -->
+                        <button type="button" onclick="triggerPrint('cards')" class="p-4 rounded-2xl border-2 border-red-200 hover:border-xmas-red bg-red-50/50 hover:bg-red-50 text-left transition cursor-pointer flex flex-col justify-between">
+                            <div>
+                                <div class="text-2xl mb-1">✂️💌</div>
+                                <div class="font-display font-bold text-xmas-red">1. I 24 Biglietti Parlati</div>
+                                <div class="text-[11px] text-gray-600 mt-1">Griglia tratteggiata A4 pronta da ritagliare e mettere nella scatola trucchi.</div>
+                            </div>
+                            <span class="text-xs font-bold text-xmas-red mt-3">Stampa 24 Biglietti →</span>
+                        </button>
+
+                        <!-- Button 2: SOS Cards -->
+                        <button type="button" onclick="triggerPrint('sos-cards')" class="p-4 rounded-2xl border-2 border-orange-200 hover:border-orange-600 bg-orange-50/50 hover:bg-orange-50 text-left transition cursor-pointer flex flex-col justify-between">
+                            <div>
+                                <div class="text-2xl mb-1">⚡💌</div>
+                                <div class="font-display font-bold text-orange-800">2. I 15 Biglietti SOS di Riserva</div>
+                                <div class="text-[11px] text-gray-600 mt-1">Biglietti rapidi da 60s già pronti nella scatola per le sere d'emergenza.</div>
+                            </div>
+                            <span class="text-xs font-bold text-orange-800 mt-3">Stampa 15 Biglietti SOS →</span>
+                        </button>
+
+                        <!-- Button 3: Adoption Certificate -->
+                        <button type="button" onclick="triggerPrint('adopt')" class="p-4 rounded-2xl border-2 border-blue-200 hover:border-blue-600 bg-blue-50/50 hover:bg-blue-50 text-left transition cursor-pointer flex flex-col justify-between">
+                            <div>
+                                <div class="text-2xl mb-1">📜✨</div>
+                                <div class="font-display font-bold text-blue-900">3. Certificato Ufficiale di Adozione</div>
+                                <div class="text-[11px] text-gray-600 mt-1">Pergamena A4 solenne del Polo Nord da consegnare il 1° Dicembre (Giorno 1).</div>
+                            </div>
+                            <span class="text-xs font-bold text-blue-900 mt-3">Stampa Certificato A4 Singolo →</span>
+                        </button>
+
+                        <!-- Button 5: Apprentice Diploma -->
+                        <button type="button" onclick="triggerPrint('diploma')" class="p-4 rounded-2xl border-2 border-yellow-300 hover:border-yellow-600 bg-yellow-50/60 hover:bg-yellow-50 text-left transition cursor-pointer flex flex-col justify-between shadow-xs">
+                            <div>
+                                <div class="text-2xl mb-1">🎓🏆</div>
+                                <div class="font-display font-bold text-yellow-900">4. Gran Diploma d'Onore di Super Aiutante</div>
+                                <div class="text-[11px] text-gray-600 mt-1">Attestato d'onore A4 da legare con fiocco rosso tra le braccia dell'elfo il 24 Dicembre!</div>
+                            </div>
+                            <span class="text-xs font-bold text-yellow-900 mt-3">Stampa Diploma Vigilia A4 →</span>
+                        </button>
+
+                        <!-- Button 6: Full Storybook -->
+                        <button type="button" onclick="triggerPrint('book')" class="p-4 rounded-2xl border-2 border-amber-200 hover:border-amber-500 bg-amber-50/50 hover:bg-amber-50 text-left transition cursor-pointer flex flex-col justify-between">
+                            <div>
+                                <div class="text-2xl mb-1">📖📸</div>
+                                <div class="font-display font-bold text-amber-900">5. Il Libro dei Ricordi (storie + foto)</div>
+                                <div class="text-[11px] text-gray-600 mt-1">Una pagina per capitolo con la foto di Lavinia: la base del libro da conservare per sempre.</div>
+                            </div>
+                            <span class="text-xs font-bold text-amber-900 mt-3">Stampa Libro dei Ricordi →</span>
+                        </button>
+                    </div>
+
+                    <!-- Backup -->
+                    <div class="p-4 rounded-2xl border-2 border-teal-200 bg-teal-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <div class="font-display font-bold text-teal-900">💾 Salva i ricordi (stelline + foto)</div>
+                            <div class="text-[11px] text-gray-600 mt-1">Le foto e l'avanzamento vivono solo in questo browser. Scarica ogni tanto il backup: è il file che protegge il Libro dei Ricordi.</div>
+                        </div>
+                        <div class="flex gap-2 shrink-0">
+                            <button type="button" onclick="exportBackup()" class="text-xs font-bold px-3 py-2 rounded-xl bg-teal-700 text-white hover:bg-teal-800 cursor-pointer">Scarica backup</button>
+                            <label class="text-xs font-bold px-3 py-2 rounded-xl bg-white border border-teal-300 text-teal-900 hover:bg-teal-100 cursor-pointer">Ripristina<input type="file" accept=".json,application/json" class="hidden" onchange="importBackup(this)"></label>
+                        </div>
+                    </div>
+
+                    <!-- Screen Live Preview Selector -->
+                    <div class="pt-6 border-t border-gray-200">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                            <span class="text-xs font-bold text-gray-700 uppercase tracking-wider">👀 Anteprima a Schermo del Documento:</span>
+                            <div class="flex flex-wrap gap-1">
+                                <button type="button" onclick="switchPreview('cards')" id="prev-btn-cards" class="prev-btn text-xs font-bold px-3 py-1 rounded-xl bg-xmas-red text-white cursor-pointer">24 Biglietti</button>
+                                <button type="button" onclick="switchPreview('sos-cards')" id="prev-btn-sos-cards" class="prev-btn text-xs font-bold px-3 py-1 rounded-xl bg-gray-100 text-gray-700 cursor-pointer">15 SOS</button>
+                                <button type="button" onclick="switchPreview('adopt')" id="prev-btn-adopt" class="prev-btn text-xs font-bold px-3 py-1 rounded-xl bg-gray-100 text-gray-700 cursor-pointer">Adozione</button>
+                                <button type="button" onclick="switchPreview('diploma')" id="prev-btn-diploma" class="prev-btn text-xs font-bold px-3 py-1 rounded-xl bg-gray-100 text-gray-700 cursor-pointer">Diploma</button>
+                                <button type="button" onclick="switchPreview('book')" id="prev-btn-book" class="prev-btn text-xs font-bold px-3 py-1 rounded-xl bg-gray-100 text-gray-700 cursor-pointer">Libro Ricordi</button>
+                            </div>
+                        </div>
+
+                        <div id="screen-preview-box" class="bg-gray-50 border rounded-2xl p-4 sm:p-6 min-h-[300px]"></div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- DEDICATED PRINT CONTAINER (100% ISOLATED FROM SCREEN UI)                 -->
+    <!-- ======================================================================= -->
+    <div id="app-print-container">
+
+        <!-- PRINT 1: 24 DAILY CARDS -->
+        <div id="print-sheet-cards">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h1 style="font-family: 'Fredoka', sans-serif; font-size: 22px; font-weight: bold; color: #991B1B; margin: 0;">💌 I 24 Bigliettini di <span class="elf-name-text">Pasticcio</span> per Lavinia</h1>
+                <p style="font-size: 11px; color: #4B5563; margin-top: 4px;">Ritaglia lungo le linee tratteggiate e conservali nella Scatola dei Trucchi!</p>
+            </div>
+            <div id="print-cards-grid" class="print-grid-cards"></div>
+        </div>
+
+        <!-- PRINT 2: 15 SOS CARDS -->
+        <div id="print-sheet-sos-cards">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h1 style="font-family: 'Fredoka', sans-serif; font-size: 22px; font-weight: bold; color: #C2410C; margin: 0;">⚡ I 15 Bigliettini SOS di Riserva di <span class="elf-name-text">Pasticcio</span></h1>
+                <p style="font-size: 11px; color: #4B5563; margin-top: 4px;">Biglietti rapidi da 60s per le sere in cui sei stanco: già pronti da ritagliare!</p>
+            </div>
+            <div id="print-sos-cards-grid" class="print-grid-cards"></div>
+        </div>
+
+        <!-- PRINT 3: FULL STORYBOOK -->
+        <div id="print-sheet-book">
+            <div style="text-align: center; margin-bottom: 24px; border-bottom: 2px solid #D97706; padding-bottom: 12px;">
+                <div style="font-size: 28px;">📖✨</div>
+                <h1 style="font-family: 'Fredoka', sans-serif; font-size: 26px; font-weight: bold; color: #78350F; margin: 4px 0 0 0;">Il Libro dei Ricordi di Lavinia e <span class="elf-name-text">Pasticcio</span></h1>
+                <p style="font-family: 'Lora', serif; font-size: 13px; font-style: italic; color: #92400E; margin-top: 4px;">Natale 2026 · Civitanova Marche · 24 storie, 24 mattine, 24 foto da non dimenticare</p>
+            </div>
+            <div id="print-book-content"></div>
+        </div>
+
+        <!-- PRINT 4: ADOPTION CERTIFICATE (DAY 1) -->
+        <div id="print-sheet-adopt">
+            <div class="print-certificate-single-page">
+                <div>
+                    <div style="font-size: 42px; margin-bottom: 6px;">📜🧝✨</div>
+                    <h1 style="font-family: 'Fredoka', sans-serif; font-size: 30px; font-weight: bold; color: #78350F; letter-spacing: 2px; text-transform: uppercase; margin: 0;">Regno del Polo Nord</h1>
+                    <p style="font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #B45309; font-weight: bold; margin-top: 4px;">Dipartimento Superiore dei Folletti Domestici</p>
+                </div>
+
+                <div style="margin: 20px 0;">
+                    <h2 style="font-family: 'Fredoka', sans-serif; font-size: 22px; font-weight: bold; color: #991B1B; margin-bottom: 12px;">ATTO UFFICIALE DI ADOZIONE MAGICA</h2>
+                    <p style="font-family: 'Lora', serif; font-size: 14px; color: #1F2937; line-height: 1.6; margin: 0 auto; max-width: 500px;">
+                        Con il presente documento solenne, si certifica che il giorno <strong>1° Dicembre 2026</strong>, a <strong>Civitanova Marche</strong>, la bravissima e coraggiosa
+                    </p>
+                    <div style="font-family: 'Fredoka', sans-serif; font-size: 32px; font-weight: bold; color: #B91C1C; border-bottom: 2px dashed #FCA5A5; display: inline-block; padding: 4px 30px; margin: 8px 0;">
+                        LAVINIA
+                    </div>
+                    <p style="font-family: 'Lora', serif; font-size: 14px; color: #1F2937; line-height: 1.6; margin: 0 auto; max-width: 500px;">
+                        ha ufficialmente accolto nella propria casa il folletto personale inviato da Babbo Natale, battezzandolo con il nome magico di:
+                    </p>
+                    <div style="font-family: 'Fredoka', sans-serif; font-size: 30px; font-weight: bold; color: #166534; border-bottom: 2px dashed #86EFAC; display: inline-block; padding: 4px 30px; margin: 8px 0;" class="elf-name-text">
+                        Pasticcio
+                    </div>
+
+                    <div style="background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 14px; padding: 12px 16px; font-size: 11px; text-align: left; max-width: 460px; margin: 16px auto; color: #451A03; line-height: 1.5;">
+                        <div style="font-weight: bold; text-transform: uppercase; font-size: 9px; color: #78350F; margin-bottom: 4px;">⭐ Le Tre Promesse d'Oro di Lavinia:</div>
+                        <div>1. <strong>Non toccare l'elfo</strong> con le mani per proteggere la sua polvere di stelle.</div>
+                        <div>2. <strong>Aiutarlo con il sorriso</strong> quando combina qualche pasticcio buffo.</div>
+                        <div>3. <strong>Parlare con voce dolce</strong> e riempire la casa di allegria e abbracci.</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; padding: 10px 20px 0 20px; font-size: 11px; color: #374151; border-top: 1px solid #FDE68A;">
+                    <div style="text-align: center;">
+                        <div style="font-family: 'Patrick Hand', cursive; font-size: 22px; color: #B91C1C;">Babbo Natale</div>
+                        <div style="border-top: 1px solid #9CA3AF; width: 140px; margin-top: 2px;">Firma di Babbo Natale</div>
+                    </div>
+                    <div style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid #D97706; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 8px; text-transform: uppercase; color: #78350F; transform: rotate(10deg); background: #FEF3C7; text-align: center;">
+                        SIGILLO<br>POLO NORD
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="height: 22px;"></div>
+                        <div style="border-top: 1px solid #9CA3AF; width: 140px; margin-top: 2px;">Firma di Lavinia ✏️</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRINT 5: APPRENTICE DIPLOMA (DAY 24) -->
+        <div id="print-sheet-diploma">
+            <div class="print-certificate-single-page" style="border-color: #CA8A04 !important; background: #FFFEFA !important;">
+                <div>
+                    <div style="font-size: 42px; margin-bottom: 6px;">🏆⭐🎄</div>
+                    <h1 style="font-family: 'Fredoka', sans-serif; font-size: 30px; font-weight: bold; color: #854D0E; letter-spacing: 2px; text-transform: uppercase; margin: 0;">GRAN DIPLOMA D'ONORE</h1>
+                    <p style="font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #A16207; font-weight: bold; margin-top: 4px;">Laboratorio Centrale dei Miracoli di Natale</p>
+                </div>
+
+                <div style="margin: 20px 0;">
+                    <h2 style="font-family: 'Fredoka', sans-serif; font-size: 22px; font-weight: bold; color: #B91C1C; margin-bottom: 12px;">SUPER AIUTANTE MAGICA DI BABBO NATALE</h2>
+                    <p style="font-family: 'Lora', serif; font-size: 14px; color: #1F2937; line-height: 1.6; margin: 0 auto; max-width: 500px;">
+                        Si conferisce con immensa gioia e ammirazione alla straordinaria bambina
+                    </p>
+                    <div style="font-family: 'Fredoka', sans-serif; font-size: 34px; font-weight: bold; color: #B91C1C; border-bottom: 2px dashed #FCA5A5; display: inline-block; padding: 4px 30px; margin: 8px 0;">
+                        LAVINIA
+                    </div>
+                    <p style="font-family: 'Lora', serif; font-size: 14px; color: #1F2937; line-height: 1.6; margin: 0 auto; max-width: 500px;">
+                        per aver scoperto, uno dopo l'altro, tutti i 24 segreti del Polo Nord e riempito di luce il suo Barattolo, insegnando al folletto <span class="elf-name-text font-bold">Pasticcio</span> il valore dell'ascolto, delle parole dolci, del coraggio e dell'amore in famiglia.
+                    </p>
+
+                    <div style="background: #FEF9C3; border: 1px solid #FE0883; border-color: #FACC15; border-radius: 14px; padding: 12px 18px; font-size: 12px; font-style: italic; color: #713F12; max-width: 440px; margin: 16px auto; line-height: 1.5;">
+                        «Il tuo cuore grande e il tuo sorriso sono la magia più potente del Polo Nord!»
+                    </div>
+                    <p style="font-size: 11px; color: #713F12; margin: 6px 0 0 0;">Dato a Civitanova Marche, il 24 Dicembre 2026</p>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; padding: 10px 20px 0 20px; font-size: 11px; color: #374151; border-top: 1px solid #FEF08A;">
+                    <div style="text-align: center;">
+                        <div style="font-family: 'Patrick Hand', cursive; font-size: 22px; color: #B91C1C;">Babbo Natale</div>
+                        <div style="border-top: 1px solid #9CA3AF; width: 140px; margin-top: 2px;">Babbo Natale in persona</div>
+                    </div>
+                    <div style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid #EAB308; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 8px; text-transform: uppercase; color: #713F12; transform: rotate(6deg); background: #FEF9C3; text-align: center;">
+                        STELLA D'ORO<br>2026
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-family: 'Patrick Hand', cursive; font-size: 22px; color: #166534;" class="elf-name-text">Pasticcio</div>
+                        <div style="border-top: 1px solid #9CA3AF; width: 140px; margin-top: 2px;">Il tuo Elfo del Cuore</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- JAVASCRIPT LOGIC & ENGINE                                               -->
+    <!-- ======================================================================= -->
+    <script>
+        // STORAGE KEY
+        const STORAGE_KEY = 'elfo_wrait_storybook_lavinia_v2';
+
+        // RAW DATA
+        const DAYS = [{"day":1,"title":"L'Atterraggio nel Cestino & La Borsa dei Tesori Polari","act":1,"act_title":"Atto 1: L'Arrivo e i Primi Pasticci","challenge_tag":"Arrivo & Le 3 Regole","scene_visual":"Pasticcio è atterrato a capofitto dentro la scarpa da ginnastica di Lavinia! Spuntano solo le sue gambette all'aria. Accanto alla scarpa ci sono 3 cose ben allineate: il telecomando con un cartellino 'ACCENDI!', il rotolo con nastro dorato del CERTIFICATO DI ADOZIONE e un grande BARATTOLO DI VETRO con un fiocco dorato e la prima stellina luccicante sul fondo!","story":"Sotto il cielo viola del Polo Nord, Pasticcio aveva preso troppo slancio sullo scivolo delle nuvole. «Frenaaaa!» gli aveva gridato una renna. Ma Pasticcio aveva già chiuso gli occhi e... PATATRAC! Era scivolato dritto giù per il camino, finendo a testa in giù dentro una scarpa profumata di gomma da cancellare. Stringeva a sé la borsa con i tesori del Polo Nord: il videomessaggio di Babbo Natale, il Certificato di Adozione e il Barattolo di Luce, da riempire con una stellina ogni mattina. Appena ha tirato fuori la testa, ha esclamato: «Sono arrivato! Lavinia, corri ad accendere la TV!»","note":"AIUTO! Ho frenato troppo tardi e sono atterrato nella tua scarpa! Ciao Lavinia, sono {ELF}! Accendi la TV: c'è un videomessaggio segreto che Babbo Natale ha registrato proprio per te! Ti ho portato anche il CERTIFICATO DI ADOZIONE da firmare insieme e il BARATTOLO DI LUCE: ogni mattina ci metterai una stellina e, giorno dopo giorno, si riempirà di luce! Ricorda la regola d'oro: non toccarmi con le mani o perdo la polvere magica! Metti subito la stellina numero 1 nel Barattolo!","prep_time":"3 min","spot":"Ingresso / vicino alla TV","materials":["Una scarpa da ginnastica di Lavinia","Telecomando della TV con post-it 'ACCENDI!'","Foglio A4 Certificato di Adozione (stampato dal Tab 5) arrotolato con un nastrino","Un grande barattolo di vetro con coperchio (1-2 litri) con un fiocco dorato","La stellina dorata n° 1, sul fondo del barattolo"],"instructions":["Infila l'elfo a testa in giù (o seduto) nella scarpa di Lavinia.","Posiziona il telecomando con il post-it 'ACCENDI!' accanto alla scarpa e prepara il video sulla TV (file «Babbo Natale.mp4»).","Posa accanto alla scarpa il Certificato di Adozione arrotolato e il Barattolo di Luce con la stellina n° 1 sul fondo.","Metti il biglietto ben visibile davanti alla scarpa.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Guarda il videomessaggio di Babbo Natale sulla TV, firma con Mamma e Papà il Certificato di Adozione e metti la stellina n° 1 nel Barattolo di Luce!","director_tip":"Al risveglio, godetevi la sorpresa: guardate il video insieme a Lavinia, firmate solennemente il Certificato di Adozione e scegliete insieme dove tenere il Barattolo di Luce, in cameretta e ben in vista: resterà lì anche dopo Natale."},{"day":2,"title":"I Piedi nei Guanti & Il Grande Capitombolo","act":1,"act_title":"Atto 1: L'Arrivo e i Primi Pasticci","challenge_tag":"Ascoltare Subito Mamma e Papà","scene_visual":"Pasticcio è steso pancia all'aria sul tappeto: ha infilato i guantini di lana sui piedi e le scarpe sulle mani! È inciampato ed è rimasto a gambe levate.","story":"«Pasticcio, ascolta al primo colpo: i guanti vanno sulle mani e le scarpe sui piedi!» gli aveva raccomandato Mamma Orsa prima di partire. Ma Pasticcio aveva fretta di esplorare la cucina. «Sì, sì, ho capito tutto!» aveva risposto senza fermarsi ad ascoltare. Cinque secondi dopo, camminando con le dita dei piedi tutte strette nei guanti di lana, è inciampato nella frangia del tappeto. ROTOLON-ROTOLONI! Gambe in su e cappello sugli occhi. «Forse ascoltare subito mi avrebbe evitato una capriola non voluta!» ha riso Pasticcio massaggiandosi il nasino.","note":"RIDI PURE! Ho fatto di testa mia e mi sono messo i guanti sui piedi! Risultato: un mega capitombolo sul tappeto! Mamma e Papà avevano ragione: ascoltare al primo richiamo fa risparmiare tante botte al sedere! Oggi facciamo a gara ad ascoltare al primo colpo? E dopo ricordati di mettere la stellina numero 2 nel Barattolo!","prep_time":"2 min","spot":"Tappeto del salotto","materials":["Un paio di guanti da bimba o calzini spaiati","La stellina dorata n° 2"],"instructions":["Infila le estremità dei piedi dell'elfo dentro le dita di un guantino.","Sdralo a pancia all'aria sul tappeto con le gambe per aria in posa comica.","Metti il biglietto accanto a lui.","Appoggia sul biglietto la stellina dorata n° 2.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Ascolta Mamma e Papà alla prima chiamata senza farti ripetere le cose: ogni volta che lo fai, fai l'occhiolino a Pasticcio e metti la stellina n° 2 nel Barattolo!","director_tip":"Se durante il giorno Lavinia si distrae, dille sorridendo: 'Lavinia, non ti starai mica mettendo i guanti sui piedi come Pasticcio?'. L'immagine comica sblocca l'ascolto senza sgridare."},{"day":3,"title":"Il Sussurro del Topolino e il Megafono di Cartone","act":1,"act_title":"Atto 1: L'Arrivo e i Primi Pasticci","challenge_tag":"Urla & Voce Dolce","scene_visual":"Pasticcio ha costruito un megafono arrotolando un cartoncino e ha urlato contro l'orsacchiotto peluche. L'orsetto è caduto all'indietro e Pasticcio ha un fazzolettino al collo e un cerottino sulla gola!","story":"Stanotte Pasticcio voleva chiamare l'orsacchiotto Teddy per fare festa. Ha preso un tubo di cartone, si è gonfiato come un rospo e ha fatto: «SVEGLIAAAAA!» con un urlo da sirena dei pompieri. Il povero orsacchiotto è rimbalzato all'indietro per lo spavento con le zampe all'aria, e a Pasticcio è sparita la voce! Ora dalla sua bocca esce solo un buffo «Squik-squik» da topolino infreddolito. «Ahi ahi la gola...» pensa Pasticcio. «Le renne al Polo Nord si parlano con la voce morbida di velluto, altrimenti le campane di neve si rompono!»","note":"SQUIK-SQUIK! Ieri ho preso questo megafono e ho GRIDATO fortissimo! Ho spaventato Orsetto e ora ho un mal di gola tremendo, non mi esce più la voce! Al Polo Nord i folletti usano la 'voce di velluto' dolce e calma. Oggi mi aiuti a parlare piano piano come due fate dei boschi? Poi corri a mettere la stellina numero 3 nel Barattolo!","prep_time":"3 min","spot":"Cameretta / letto di Lavinia","materials":["Un orsetto o peluche","Un tubo di carta igienica o rotolo di carta","Un fazzoletto annodato al collo dell'elfo","La stellina dorata n° 3"],"instructions":["Metti l'orsetto sdraiato all'indietro come se fosse stato spazzato via.","Metti l'elfo con il rotolo di cartone appoggiato alla bocca come un megafono.","Annodagli un piccolo fazzolettino al collo come sciarpa per il mal di gola.","Appoggia sul biglietto la stellina dorata n° 3.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Oggi parla con la 'voce di velluto': ogni volta che vuoi qualcosa, usa la voce dolce senza urlare!","director_tip":"Quando Lavinia alza il tono durante il giorno, metti un dito sulle labbra e dille sottovoce: 'Pasticcio ha ancora la gola delicata, usiamo la voce di velluto per farlo riposare'."},{"day":4,"title":"La Marmellata delle Parole Dolci","act":1,"act_title":"Atto 1: L'Arrivo e i Primi Pasticci","challenge_tag":"Parolacce & Parole Gentili","scene_visual":"Pasticcio è seduto davanti a un piattino con un cucchiaino sporco di marmellata o miele e un bicchierino d'acqua. Ha la lingua di fuori con un'espressione schifata!","story":"Girovagando per la cucina, Pasticcio ha trovato un ritaglio di giornale con una parola brutta e sgarbata. Incuriosito, l'ha pronunciata ad alta voce: «PUZZONACCIA!». All'improvviso, BLEAH! La sua bocca si è riempita di un sapore orribile, come di broccolo bruciato misto a fango di pozzanghera! Pasticcio ha corso verso la credenza, si è tuffato nel barattolo della marmellata e si è sciacquato la lingua con tre sorsi d'acqua fresca. «Mai più parole brutte!» ha promesso con gli occhi lucidi. «Le parole belle come 'Per favore', 'Grazie' e 'Ti voglio bene' sanno di fragola e panna!»","note":"BLEAH! Stanotte ho provato a dire una parolaccia e la mia lingua è diventata amarissima, come mangiare fango! Ho dovuto mangiare un cucchiaino di marmellata per lavarmi la bocca! Lavinia, tu che sei una bimba gentile, quali sono le tue parole più dolci? Oggi diciamo solo parole che sanno di fragola! Metti la stellina numero 4 nel Barattolo!","prep_time":"2 min","spot":"Tavolo della cucina","materials":["Un piattino da caffè","Un cucchiaino con una goccia di marmellata o miele","Un bicchierino d'acqua","La stellina dorata n° 4"],"instructions":["Posa l'elfo seduto al tavolo davanti al piattino.","Metti una mezza goccia di marmellata sulla punta del cucchiaino.","Appoggia il biglietto accanto al piattino.","Appoggia sul biglietto la stellina dorata n° 4.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Dì 3 parole 'alla fragola' (es. Ti voglio bene, Per favore, Grazie) a Mamma e Papà prima di cena!","director_tip":"Se a Lavinia scappa una parolaccia, non sgridatela. Chiedetele: 'Bleah! Che sapore cattivo ha lasciato quella parola sulla lingua? Vuoi una parola alla fragola per sciacquarla?'."},{"day":5,"title":"La Pista da Sci sulla Carta Igienica","act":1,"act_title":"Atto 1: L'Arrivo e i Primi Pasticci","challenge_tag":"Puro Gioco & Risate","scene_visual":"Un rotolo di carta igienica srotolato dal divano fino al tappeto come una pista da sci innevata. Pasticcio è a metà pista a bordo di un cucchiaio da cucina con due stecchini come racchette da sci!","story":"«Chi ha detto che in salotto non c'è la neve?» ha pensato Pasticcio alle tre di notte. Con un salto acrobatico ha afferrato il rotolo di carta igienica dal bagno e l'ha lanciato lungo il divano. ZZZZZ! Una morbida pista bianca è scesa dritta sul pavimento. Poi ha preso un cucchiaio d'argento dal cassetto, ci si è seduto dentro come su un bob e... «PISTAAAAA!» è scivolato giù a tutta velocità, fermandosi a un millimetro dalla pantofola di Papà!","note":"WROOOOM! Guardami Lavinia, sono il campione di sci del Polo Nord! Ho trasformato la carta igienica nella pista delle Olimpiadi Polari! Sei pronta a sciare anche tu stamattina verso la colazione? Dopo fai tintinnare la stellina numero 5 nel Barattolo!","prep_time":"3 min","spot":"Divano o scala","materials":["1 rotolo di carta igienica","1 cucchiaio","2 stecchini senza punta o cotton fioc come racchette","La stellina dorata n° 5"],"instructions":["Srotola mezzo metro di carta igienica dal bracciolo del divano a terra.","Metti l'elfo seduto nel cucchiaio sulla striscia di carta.","Infilagli due cotton fioc sotto le braccia come racchette da sci.","Appoggia sul biglietto la stellina dorata n° 5.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Fai la camminata da sciatore fino alla tavola della colazione senza cadere!","director_tip":"Scena 100% visiva e divertente che fa ridere a crepapelle qualsiasi bambina. Nessun danno, basta riarrotolare la carta a fine mattinata."},{"day":6,"title":"Il Mal di Pancia delle Caramelle Pazze","act":1,"act_title":"Atto 1: L'Arrivo e i Primi Pasticci","challenge_tag":"Troppi Dolci & Mangiare Sano","scene_visual":"Pasticcio è sdraiato a pancia all'aria vicino a 3 carte di caramella vuote. Ha un tovagliolino piegato come coperta e una fetta di mela (o una carota) appoggiata sulla fronte come borsa del ghiaccio!","story":"Ieri sera Pasticcio ha visto il vasetto dei dolci e non ha saputo resistere. GNAM, SLURP, CRUNCH! Ha ingoiato tre caramelle di fila. Nei primi dieci minuti sembrava una trottola impazzita: saltava da una sedia all'altra facendo capriole. Ma poi... GURGLE-GURGLE! La sua pancia ha iniziato a borbottare come una pentola di fagioli. Gli è venuto un mal di pancia così forte che si è dovuto stendere sul tavolo. Meno male che una rondella di mela fresca gli ha fatto da impacco rinfrescante!","note":"OHI OHI OHI... la mia pancina! Non ho saputo dire basta e ho mangiato troppi zuccheri di notte! Ora la mia pancia brontola come un orso arrabbiato! Meno male che la frutta fresca è la vera medicina magica! Oggi mi prometti che mangiamo cose buone e sane che danno superpoteri? Metti la stellina numero 6 nel Barattolo! E guarda sul tavolo: le renne ti hanno mandato il CAMPANELLINO DELLA SLITTA! Legalo al fiocco del Barattolo: se lo suoni, io ti sento fin dal Polo Nord!","prep_time":"2 min","spot":"Tavolo della cucina","materials":["Un tovagliolo","2-3 incarti di caramella vuoti","Una fettina di mela o carota","Il Campanellino della Slitta (tappa 1 di 4): un campanellino d'argento con nastrino","La stellina dorata n° 6"],"instructions":["Sdrai l'elfo con il tovagliolo a mo' di coperta.","Metti gli incarti di caramella aperti vicino a lui.","Posa la fettina di mela sulla sua pancia o fronte.","Appoggia vicino alla scena un campanellino d'argento con nastrino: è la sorpresa di tappa 1 di 4.","Appoggia sul biglietto la stellina dorata n° 6.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Mangia tutta la frutta a colazione o merenda per mandare un po' di vitamine guaritrici a Pasticcio! Poi lega il campanellino al Barattolo di Luce e suonalo una volta!","director_tip":"Quando Lavinia chiede troppi dolci durante la giornata, ricordale: 'Attenta Lavinia, ricordi la pancina di Pasticcio stamattina? Mangiamo prima una mela croccante da campioni'. Tappa 1 di 4: Lavinia vede che le sue 6 stelline hanno portato un tesoro vero."},{"day":7,"title":"Gli Occhiali a Spirale e il Grande Libro","act":1,"act_title":"Atto 1: L'Arrivo e i Primi Pasticci","challenge_tag":"Troppi Schermi & Amore per i Libri","scene_visual":"Pasticcio ha due occhiali buffi (fatti con due rotolini o disegnati su carta con spirali ipnotiche). È seduto a gambe incrociate davanti a un bellissimo libro illustrato di Lavinia aperto a colori!","story":"Stanotte Pasticcio voleva vedere cosa facevano i cartoni animati sullo smartphone. È rimasto a guardare il display luminoso per ore e ore. Alla fine i suoi occhi hanno iniziato a girare come due girandole al vento! Tutto gli sembrava sfocato e gli faceva male la testa. Allora ha chiuso il telefono, ha aperto il libro delle fiabe di Lavinia e ha appoggiato la mano sulle pagine colorate: le figure di carta non pungono gli occhi, profumano di legno e raccontano le storie più belle del mondo!","note":"AIUTO, MI GIRA TUTTO! Stanotte ho guardato troppo lo schermo luminoso e i miei occhi sono diventati a spirale! Non riuscivo nemmeno a vedere dove mettevo i piedi! Ho aperto il tuo libro preferito: che meraviglia i colori veri della carta! Oggi leggiamo una storia insieme sul divano senza nessun cellulare acceso? Metti la stellina numero 7 nel Barattolo!","prep_time":"3 min","spot":"Tavolino basso o divano","materials":["Un libro illustrato di Lavinia","Un foglietto con disegnati due occhiali a spirale o ritagliati","La stellina dorata n° 7"],"instructions":["Apri un libro illustrato sul divano o tavolino.","Disegna due occhi a spirale su un foglietto e appoggiali sul viso dell'elfo (o fagli due occhialini di carta).","Metti l'elfo seduto a 'leggere' il libro.","Appoggia sul biglietto la stellina dorata n° 7.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Scegli una favola da sfogliare con Mamma o Papà invece di guardare lo schermo!","director_tip":"Questa scena crea una transizione spontanea e priva di capricci per spegnere TV e tablet: 'Lavinia, facciamo riposare gli occhi come ha fatto Pasticcio con il suo libro'."},{"day":8,"title":"L'Albero di Natale & La Pallina Prigioniera","act":2,"act_title":"Atto 2: L'Albero e le Prove del Cuore","challenge_tag":"Tradizione dell'Albero (8 Dicembre)","scene_visual":"È l'8 Dicembre! Pasticcio è appeso a un ramo dell'albero di Natale (o vicino all'albero ancora da addobbare) completamente aggrovigliato in un nastro dorato insieme a una pallina di Natale luminosa!","story":"L'otto dicembre al Polo Nord suonano tutte le campane d'argento: è il giorno in cui si accendono gli alberi in tutto il mondo! Pasticcio non vedeva l'ora: ha preso la pallina più luccicante della scatola per metterla sul ramo più alto. Solo che si è impigliato nel nastro dorato e ci si è arrotolato dentro come un involtino primavera! «Lavinia, aiuto! Srotolami tu, e oggi addobbiamo insieme l'albero più luminoso di tutto il quartiere!»","note":"BUON 8 DICEMBRE LAVINIA! Oggi è il giorno dell'Albero di Natale! Volevo farti una sorpresa e appendere la prima pallina, ma mi sono arrotolato nel nastro come un pacchetto regalo! Mi liberi tu? Oggi facciamo brillare tutta la casa di lucine magiche e mettiamo la stellina numero 8 nel Barattolo!","prep_time":"3 min","spot":"Sull'albero di Natale (o scatola addobbi)","materials":["1 pallina di Natale","Un nastro dorato o rosso per legare l'elfo al ramo","La stellina dorata n° 8"],"instructions":["Arrotola il nastro intorno all'elfo e appendilo a un ramo basso dell'albero.","Metti la pallina stretta tra le sue manine.","Posiziona il biglietto ai piedi dell'albero.","Appoggia sul biglietto la stellina dorata n° 8.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Aiuta Mamma e Papà ad appendere le tue palline preferite sull'albero e accendi le lucine!","director_tip":"Giorno perfetto per la tradizione dell'8 dicembre. Coinvolgete Lavinia nel 'salvare' l'elfo dal nastro e poi fare l'albero insieme con la musica natalizia."},{"day":9,"title":"Il Mini-Fortino tra i Cuscini","act":2,"act_title":"Atto 2: L'Albero e le Prove del Cuore","challenge_tag":"Costruire Insieme & Fantasia","scene_visual":"Pasticcio ha costruito una mini-tenda tra due cuscini del divano usando una molletta da bucato e un fazzoletto grande. Da dentro sbuca solo la sua faccina curiosa con una torcia spenta accanto!","story":"Stanotte faceva freschetto in salotto. Pasticcio ha guardato i grandi cuscini morbidi del divano e ha pensato: «Questa notte mi costruisco una tana da orso polare!». Con una molletta da bucato ha fissato il fazzoletto tra i due cuscini e si è creato una casetta segreta. Dentro ci ha portato un pezzetto di biscotto e un soldatino di plastica per fargli la guardia. «Che bello il fortino dei segreti! Lavinia, ci entri anche tu con me?»","note":"PSST! Guarda che casetta morbida ho costruito con i tuoi cuscini! È la base segreta degli elfi esploratori! Oggi pomeriggio costruiamo un fortino gigante con coperte e cuscini per leggere le storie insieme? Metti la stellina numero 9 nel Barattolo!","prep_time":"2 min","spot":"Divano del salotto","materials":["2 cuscini del divano","Un fazzoletto grande o canovaccio","Una molletta","La stellina dorata n° 9"],"instructions":["Metti due cuscini a V rovesciata o affiancati.","Appoggia il canovaccio sopra come tetto, fermato con una molletta.","Infila l'elfo dentro che fa capolino.","Appoggia sul biglietto la stellina dorata n° 9.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Oggi costruisci una capanna di coperte con Mamma e Papà e invitaci dentro un peluche!","director_tip":"Il gioco delle capanne domestiche sviluppa sicurezza emotiva e fantasia, stimolando ore di gioco tranquillo senza schermi."},{"day":10,"title":"La Scarpa che Vola via per la Rabbia","act":2,"act_title":"Atto 2: L'Albero e le Prove del Cuore","challenge_tag":"Capricci & Rabbia per i NO","scene_visual":"Pasticcio è seduto a terra scalzo da un piede, con le braccia incrociate e le guance imbronciate. La sua scarpina rossa è volata in alto ed è atterrata dritta dentro la ciotola della frutta sul tavolo!","story":"«NO Pasticcio, non puoi fare il bagno nella tazza del tè caldo!» gli aveva detto la nonna elfa. E Pasticcio? Invece di fare un bel respiro, si era arrabbiato: aveva gonfiato le guance, pestato i piedi con forza sul pavimento... FLIIISH! Il piede ha fatto un colpo così secco che la scarpa si è sfilata ed è volata in cielo, atterrando tra le mele e le arance! Pasticcio è rimasto lì scalzo, a bocca aperta. All'improvviso si è guardato il calzino bucato e ha cominciato a ridere come un matto. «Pestare i piedi fa solo volare le scarpe!» ha capito ridendo.","note":"NON DIRMI NIENTE! Ieri mi hanno detto di NO a un tuffo nel tè caldo e ho battuto i piedi così forte che la mia scarpa è decollata come un razzo ed è finita tra le arance! Ahahah, che buffo che sono stato! Quando qualcosa non si può fare, pestare i piedi non serve: basta fare 3 respiri profondi e ridere insieme! Metti la stellina numero 10 nel Barattolo!","prep_time":"2 min","spot":"Pavimento vicino al tavolo / ciotola della frutta","materials":["Un calzino/scarpa dell'elfo o un cartoncino a forma di scarpa","La ciotola della frutta","La stellina dorata n° 10"],"instructions":["Togli una scarpa o un calzino all'elfo (o fagli un piedino scalzo).","Metti l'elfo seduto a terra con posa da finto offeso.","Metti la scarpa dentro la ciotola delle arance/mele sul tavolo.","Appoggia sul biglietto la stellina dorata n° 10.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Quando senti che sta per arrivare la rabbia per un 'NO', fai 3 soffi lenti come se dovessi raffreddare una tazza di cioccolata calda!","director_tip":"Quando Lavinia protesta per un limite, ditele: 'Non facciamo volare le scarpe nelle arance come Pasticcio! Facciamo il soffio della cioccolata calda'."},{"day":11,"title":"La Festa dei Giocattoli Dimenticati","act":2,"act_title":"Atto 2: L'Albero e le Prove del Cuore","challenge_tag":"Volere Sempre Giochi Nuovi","scene_visual":"Pasticcio ha radunato in cerchio 4 vecchi giocattoli di Lavinia che non usava da mesi (un sonaglino, una bambolina, un peluche). Al centro c'è un tappo di bottiglia con una briciola di biscotto e coroncine di carta!","story":"Stanotte Pasticcio ha aperto la cesta dei giochi e ha sentito dei piccoli singhiozzi. In fondo, sotto i cuscini, c'erano tre giocattoli dimenticati con un po' di polvere sul naso. «Nessuno gioca più con noi...» piagnucolava il coniglietto di pezza. Pasticcio si è rimboccato le maniche: ha spolverato il coniglietto, ha fatto una coroncina di carta per ciascuno e ha organizzato il 'Ballo dei Reali Ritrovati'! I vecchi giocattoli hanno iniziato a ballare felici: non c'è bisogno di comprare giochi nuovi nei negozi quando quelli che abbiamo a casa sono tesori pieni di ricordi!","note":"SORPRESA! Stanotte ho trovato questi tuoi vecchi amici in fondo alla cesta: si sentivano un po' soli, così gli ho organizzato una festa con la corona reale! Erano così contenti di rivederti! I giocattoli che hai già sono tesori magici: oggi giochiamo con loro? Poi metti la stellina numero 11 nel Barattolo!","prep_time":"3 min","spot":"Tappeto della cameretta","materials":["3-4 vecchi giochi o peluche di Lavinia","Un fazzoletto come tovaglia","Ritagli di carta a forma di coroncina","La stellina dorata n° 11"],"instructions":["Prendi 3 giocattoli che Lavinia non usa da un po'.","Mettili in cerchio con l'elfo.","Metti al centro un tovagliolo con un biscottino o un tappo con acqua.","Appoggia sul biglietto la stellina dorata n° 11.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Scegli uno di questi giocattoli ritrovati e portalo con te a fare una passeggiata o un gioco speciale oggi!","director_tip":"Questa scena combatte la mania compulsiva di chiedere sempre regali nuovi, riaccendendo l'affetto autentico per i giochi già posseduti."},{"day":12,"title":"Il Bagno Caldo nei Batuffoli di Cotone","act":2,"act_title":"Atto 2: L'Albero e le Prove del Cuore","challenge_tag":"Pulizia, Bagnetto & Relax","scene_visual":"Pasticcio è immerso fino al mento dentro una tazza da colazione vuota, riempita di morbidi batuffoli di cotone bianco che sembrano soffice schiuma da bagno! Ha una paperella di gomma o tappo galleggiante accanto.","story":"Dopo tante avventure, Pasticcio aveva proprio bisogno di rinfrescarsi. Ma gli elfi non si lavano nell'acqua fredda del rubinetto: loro fanno il bagno nella 'schiuma di nuvola'! Ha riempito una tazza di batuffoli bianchi e ci si è tuffato dentro fino alle orecchie. «Ahhhh, che relax!» canticchiava strofinandosi la schiena con un cotton fioc. «Fare il bagnetto e profumare di pulito fa sentire leggeri come piume!»","note":"SPLASH! Che meraviglia il mio idromassaggio di nuvole! Mi sono lavato per bene e ora profumo come un fiore di vaniglia! Fare il bagnetto e lavarsi bene la sera fa fare i sogni più dolci del mondo! Stasera facciamo le bolle insieme nel tuo bagnetto? Metti la stellina numero 12 nel Barattolo! E c'è una sorpresa: una PALLINA D'ORO con il tuo nome! Appendila all'albero: tornerà ogni Natale!","prep_time":"2 min","spot":"Lavandino del bagno o mensola","materials":["Una tazza da colazione","5-6 batuffoli di cotone","Un cotton fioc come spugna","La Pallina d'Oro con il tuo nome (tappa 2 di 4): una pallina d'oro per l'albero (meglio se con scritto «Lavinia 2026»)","La stellina dorata n° 12"],"instructions":["Riempi la tazza con i batuffoli di cotone.","Infila l'elfo dentro in modo che spunti solo la testa e le braccia appoggiate al bordo.","Appoggia il cotton fioc sul bordo della tazza.","Appoggia vicino alla scena una pallina d'oro per l'albero (meglio se con scritto «Lavinia 2026»): è la sorpresa di tappa 2 di 4.","Appoggia sul biglietto la stellina dorata n° 12.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Stasera fai un super bagnetto caldo o doccia senza protestare e gioca con la schiuma profumata! Poi appendi la Pallina d'Oro all'albero, dove tutti la vedono!","director_tip":"Perfetto per la sera quando i bimbi a volte fanno storie per lavarsi: la scena rende il bagnetto un momento di puro piacere sensoriale. Tappa 2 di 4: metà strada! Ottimo momento per fare una foto con la pallina."},{"day":13,"title":"La Zipline Spettacolare nel Salotto","act":2,"act_title":"Atto 2: L'Albero e le Prove del Cuore","challenge_tag":"Coraggio & Avventura","scene_visual":"Uno spago teso dalla maniglia di una porta a una gamba del tavolo o sedia. Pasticcio è appeso a metà filo tramite una cannuccia o graffetta, sospeso a mezz'aria come un acrobata!","story":"«Camminare sul pavimento è troppo noioso per un folletto delle nevi!» ha annunciato Pasticcio alle due del mattino. Ha legato una corda robusta dalla porta al tavolo, ha infilato una cannuccia sullo spago e ci si è appeso con le sue manine. Con un grido da piccolo eroe polare — «IUUUU-HUUUU!» — si è lanciato nel vuoto, sfrecciando nell'aria come una freccia luccicante. «Che coraggio ci vuole per volare! Ma quando affronti una piccola paura, la vista dall'alto è magnifica!»","note":"IUUU-HUUUU! Guarda dove sono appeso Lavinia! Ho costruito una funivia volante nel tuo salotto! A volte provare cose nuove fa battere forte il cuore, ma poi che gioia immensa! Oggi fai una cosa coraggiosa che non avevi mai provato? Metti la stellina numero 13 nel Barattolo!","prep_time":"3 min","spot":"Salotto / tra due mobili bassi","materials":["Un pezzo di spago o lana (1 metro)","Una cannuccia o graffetta","Un pezzetto di scotch per fissare le estremità","La stellina dorata n° 13"],"instructions":["Fissa lo spago teso tra due punti sicuri (es. maniglia e sedia).","Infila una cannuccia nello spago e fissa le manine dell'elfo alla cannuccia con un pezzetto di nastro.","L'elfo resterà sospeso a mezz'aria in modo spettacolare.","Appoggia sul biglietto la stellina dorata n° 13.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Fai una piccola prova di coraggio oggi: assaggia un cibo nuovo o saluta per prima una persona a voce alta!","director_tip":"Uno degli allestimenti più amati dai bambini: vedere l'elfo sospeso nel vuoto crea un vero effetto 'WOW' in soli 3 minuti di preparazione."},{"day":14,"title":"L'Invasione dei Frutti Sorridenti","act":2,"act_title":"Atto 2: L'Albero e le Prove del Cuore","challenge_tag":"Sorrisi & Buongiorno Felice","scene_visual":"Nel cesto della frutta in cucina, 3 mandarini o mele hanno faccine sorridenti buffissime disegnate con un pennarello lavabile (o piccoli bollini adesivi). Pasticcio è seduto sopra una mela con il pennarello in mano!","story":"Pasticcio guardava la ciotola della frutta: le mele erano buone, ma gli sembravano un po' troppo serie. «Manca un tocco di allegria qui!» ha esclamato. Ha tirato fuori un pennarello e ha disegnato due occhietti vispi e un sorriso largo da orecchio a orecchio su ogni mandarino. Immediatamente la cucina si è riempita di sorrisi arancioni! «Basta un piccolo sorriso disegnato sul viso la mattina per trasformare una giornata grigia in una festa!»","note":"BUONGIORNOOO! Ho fatto un incantesimo alla frutta: ora tutti i mandarini ridono insieme a noi! Ti sorridono e ti dicono: mangiaci che siamo dolcissimi e pieni di energia! Oggi regali un bel sorriso a tutte le persone che incontri? Metti la stellina numero 14 nel Barattolo!","prep_time":"2 min","spot":"Cesto della frutta in cucina","materials":["2-3 mandarini o banane","Un pennarello atossico nero","L'elfo seduto nel cesto","La stellina dorata n° 14"],"instructions":["Disegna due occhietti e un sorriso sulla buccia di 2 mandarini o banane.","Metti l'elfo a cavalcioni su uno di essi con il pennarello tra le mani.","Metti il biglietto accanto al cesto.","Appoggia sul biglietto la stellina dorata n° 14.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Sbuccia un mandarino sorridente e mangialo a merenda facendo una boccaccia felice allo specchio!","director_tip":"Velocissimo (meno di 90 secondi), visivamente divertente, incentiva a mangiare frutta volentieri a colazione."},{"day":15,"title":"La Spada Laser contro il Mostro del Naso Chiuso","act":3,"act_title":"Atto 3: L'Accademia della Piccola Aiutante","challenge_tag":"Paura dello Spray Nasale","scene_visual":"Pasticcio indossa un piccolo scudo di carta stagnola e impugna il flacone dello spray nasale (o fialetta fisiologica) come una spada laser! Davanti a lui c'è un post-it con disegnato un buffo 'mostriciattolo moccioso' barrato con una croce verde!","story":"Pasticcio aveva il nasino che fischiava come un trenino a vapore. «Ucci-ucci, c'è il mostro del naso chiuso!» si lamentava con la voce nasale. Aveva una paura matta dello spruzzino: credeva fosse un drago sputaghiaccio. Ma poi Babbo Natale gli ha spiegato il segreto: «Pasticcio, quello spray è acqua di mare magica! Fa solo CIUF-CIUF, fa un piccolo solletico al naso e caccia via il mostriciattolo in un secondo!». Pasticcio ha provato: CIUF-CIUF! Ha fatto una risatina per il solletico e... PUF! Poteva di nuovo fiutare l'odore dei biscotti al cioccolato!","note":"CIUF-CIUF! Ho sconfitto il Mostro del Naso Chiuso! Avevo una paura tremenda di questo spruzzino, invece fa solo un solletichino fresco e in un secondo il naso è libero come il vento! Lavinia, tu che sei coraggiosa: quando Mamma e Papà ti fanno lo spray, ricordati che è la spada laser dell'elfo! Metti la stellina numero 15 nel Barattolo!","prep_time":"3 min","spot":"Comodino del bagno o della camera","materials":["Il flacone dello spray nasale / fisiologica di Lavinia","Un post-it con disegnato un mostriciattolo buffo","Un pezzetto di stagnola","La stellina dorata n° 15"],"instructions":["Disegna un mostriciattolo scarabocchiato su un post-it con una X sopra.","Fai una strisciolina di carta stagnola sul braccio dell'elfo come scudo.","Metti l'elfo in posa da cavaliere accanto al flacone dello spray.","Appoggia sul biglietto la stellina dorata n° 15.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"La prossima volta che devi fare lo spray o lavaggio nasale, grida 'CIUF-CIUF VIA MOSTRICIATTOLO!' e fai un bel respiro da campionessa!","director_tip":"Questo ribaltamento psicologico trasforma un momento di lotta quotidiana in un gioco di alleanza tra Lavinia e l'elfo cavaliere."},{"day":16,"title":"L'Istrice di Natale & La Spazzola Ribelle","act":3,"act_title":"Atto 3: L'Accademia della Piccola Aiutante","challenge_tag":"Pettinare & Spazzolare i Capelli","scene_visual":"Pasticcio ha una nuvola di cotone o spago disordinata in testa che sbuca dal cappello come un cespuglio ribelle! Tra le mani tiene un pettinino giocattolo o la spazzola di Lavinia e sembra un piccolo istrice scompigliato!","story":"Questa notte Pasticcio ha dormito facendo le capriole sul cuscino. Risultato? Stamattina i suoi capelli sembravano un cespuglio di rovi dopo un temporale! Ha preso la spazzola e ha tirato con rabbia: «AHIA!». Più tirava forte, più faceva male. Allora è arrivata la Fata delle Criniere e gli ha sussurrato: «Pasticcio sciocchino! I capelli si accarezzano dalla punta piano piano, con dolcezza, come quando si liscia il pelo di un gattino!». Pasticcio ha provato con dolcezza e i nodi si sono sciolti come neve al sole!","note":"AIUTO, SEMBRO UN ISTRICE! Stanotte ho fatto la lotta coi cuscini e stamattina i miei capelli sono tutti arruffati! Tirare forte fa solo bua, mentre spazzolare piano piano con calma è una coccola meravigliosa! Lavinia, tu che hai i capelli da principessa, mi mostri come si fa con dolcezza? Metti la stellina numero 16 nel Barattolo!","prep_time":"2 min","spot":"Specchio del bagno / toletta","materials":["La spazzola o pettine di Lavinia","Un ciuffetto di cotone arruffato sotto il cappello dell'elfo","La stellina dorata n° 16"],"instructions":["Infila un batuffolo di cotone sfilacciato o spago sotto il cappello dell'elfo facendolo sembrare un cespuglio.","Metti la spazzolina tra le sue braccia davanti allo specchio.","Metti il biglietto appiccicato allo specchio con scotch.","Appoggia sul biglietto la stellina dorata n° 16.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Lasciati spazzolare i capelli con calma e dolcezza da Mamma o Papà contando insieme fino a 10 senza scappare!","director_tip":"Quando spazzolate i capelli a Lavinia, ditele: 'Facciamo piano come ha insegnato la Fata a Pasticcio, accarezzando i nodi con delicatezza'."},{"day":17,"title":"L'Ospedale dei Peluche Coccole","act":3,"act_title":"Atto 3: L'Accademia della Piccola Aiutante","challenge_tag":"Empatia & Curare gli Altri","scene_visual":"Uno dei peluche di Lavinia è disteso su un fazzoletto con un cerottino sulla zampa. Pasticcio è vestito da dottore (con un filo di lana alle orecchie come stetoscopio) e gli misura la febbre con un cucchiaino da caffè!","story":"Stanotte l'orsacchiotto Teddy è inciampato scendendo dalla sedia e si è fatto una bua sul gomito. Pasticcio non ha perso un secondo: ha preso la borsa del pronto soccorso polare, gli ha messo un cerottino con i cuoricini e gli ha dato un bacino sulla zampa. Miracolo! Teddy ha smesso subito di piangere e ha fatto un grande sorriso. «La medicina più potente del mondo non sta nelle bottiglie amare: è un abbraccio stretto dato con tutto il cuore!»","note":"VISITA MEDICA IN CORSO! Stanotte Orsetto aveva una bua alla zampina e gli ho fatto una fasciatura speciale con tanto di cerotto! Sai qual è la cosa che lo ha fatto guarire all'istante? Il bacetto sulla bua! Oggi diamo un super bacio curativo a chi vogliamo bene? Metti la stellina numero 17 nel Barattolo!","prep_time":"3 min","spot":"Cameretta / comodino","materials":["Un peluche di Lavinia","Un cerotto normale o colorato","Un cucchiaino da caffè","La stellina dorata n° 17"],"instructions":["Applica il cerotto su una zampina o orecchio del peluche.","Sdrai il peluche con l'elfo seduto accanto.","Metti il cucchiaino come termometro vicino al peluche.","Appoggia sul biglietto la stellina dorata n° 17.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Fai una coccola speciale o dai un bacio curativo a Mamma, Papà o a un tuo pupazzo preferito!","director_tip":"Sviluppa l'intelligenza emotiva e la tenerezza, allentando ogni tensione e capriccio della giornata."},{"day":18,"title":"La Corsa coi Sacchi... dentro la Calza!","act":3,"act_title":"Atto 3: L'Accademia della Piccola Aiutante","challenge_tag":"Divertimento & Movimento Fisico","scene_visual":"Pasticcio è infilato fino alla vita dentro un calzino spaiato di Lavinia (o calza natalizia), fermo in piedi appoggiato a una scarpa come se stesse facendo una gara di corsa coi sacchi!","story":"Le notti al Polo Nord sono lunghe, e per non congelarsi gli elfi fanno i Giochi Invernali. La gara preferita di Pasticcio è la 'Corsa nei Calzini di Lana'. Si infila dentro una calza calda, afferra il bordo con le mani e salta: BOING! BOING! BOING! «Guarda quanto salto alto!» ha gridato prima di atterrare morbido sul tappeto. Saltare e muoversi fa bene al cuore e riempie la casa di risate!","note":"BOING! BOING! BOING! Faccio la corsa coi sacchi dentro il tuo calzino preferito! È troppo divertente saltellare per la casa! Oggi facciamo anche noi la gara di salti come i coniglietti delle nevi? Poi metti la stellina numero 18 nel Barattolo! E nel calzino c'è un regalo: il CIONDOLO STELLA, un pezzetto di Polo Nord da portare sempre con te!","prep_time":"2 min","spot":"Corridoio o pavimento della camera","materials":["Un calzino colorato di Lavinia","Il Ciondolo Stella (tappa 3 di 4): un ciondolo o charm a forma di stella (collana o braccialetto)","La stellina dorata n° 18"],"instructions":["Infila l'elfo dentro il calzino fino al pancino.","Fallo stare in piedi o seduto appoggiato alla parete o a una scarpa.","Biglietto posizionato davanti al calzino.","Appoggia vicino alla scena un ciondolo o charm a forma di stella (collana o braccialetto): è la sorpresa di tappa 3 di 4.","Appoggia sul biglietto la stellina dorata n° 18.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Fai 5 salti da canguro insieme a Mamma o Papà contando ad alta voce! Poi infila il Ciondolo Stella e fai vedere a Mamma e Papà come brilla!","director_tip":"Ottimo al risveglio per scaricare l'energia in modo positivo prima di vestirsi per la scuola. Tappa 3 di 4: manca poco al Diploma. Il ciondolo è l'oggetto che porterà con sé più a lungo."},{"day":19,"title":"L'Elfo Pittore e il Ritratto di Lavinia","act":3,"act_title":"Atto 3: L'Accademia della Piccola Aiutante","challenge_tag":"Autostima & Sentirsi Amata","scene_visual":"Pasticcio ha tra le mani una matita colorata o pennarello e ha 'disegnato' su un foglio bianco un buffo ritratto di Lavinia (una faccina stilizzata sorridente con due grandi codini e stelline intorno) con la scritta: 'LAVINIA LA PIÙ BELLA'!","story":"Babbo Natale ha chiesto a Pasticcio: «Come sta andando a casa di Lavinia? Mandami una sua foto!». Ma Pasticcio non aveva la macchina fotografica: ha preso i pastelli di Lavinia e ha disegnato lui stesso il suo ritratto. Ha disegnato i suoi occhioni furbi, il suo sorriso luminoso e due grandi codini che toccano le nuvole. «Ecco fatto!» ha detto fiero Pasticcio. «Lavinia è la bambina più speciale del mondo intero, e questo disegno lo porto dritto nel mio cuore!»","note":"TI HO DISEGNATA IO! Guarda che capolavoro ho fatto con i tuoi pastelli! Ho disegnato il tuo super sorriso perché quando sorridi illumini tutta la stanza! Ti piace come ti ho fatta? Oggi fai anche tu un disegno per me o per Mamma e Papà? Metti la stellina numero 19 nel Barattolo!","prep_time":"3 min","spot":"Scrivania o tavolo del soggiorno","materials":["Un foglio bianco","Pastelli o pennarelli","Un disegno semplice e buffo fatto da un genitore a nome dell'elfo","La stellina dorata n° 19"],"instructions":["Fai uno scarabocchio dolce a pennarello (faccina sorridente con codini e stelline).","Metti l'elfo seduto con il pennarello in mano davanti al disegno.","Lascia un foglio bianco vuoto e una matita pronti per Lavinia.","Appoggia sul biglietto la stellina dorata n° 19.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Fai un disegno o scarabocchio colorato da regalare a Pasticcio e lascialo vicino a lui per stanotte!","director_tip":"I bambini amano essere al centro dell'attenzione positiva. Questo momento rinforza la fiducia in se stessa e la creatività."},{"day":20,"title":"La Ragnatela Magica sulla Porta","act":3,"act_title":"Atto 3: L'Accademia della Piccola Aiutante","challenge_tag":"Gioco di Squadra & Superare gli Ostacoli","scene_visual":"Due o tre strisce di carta igienica o nastro adesivo di carta tese ad altezza bimbo attraverso la porta della cameretta come raggi laser di un film di spie! Pasticcio è seduto sopra una striscia o guarda da sotto come un acrobata!","story":"Stanotte Pasticcio ha voluto allestire il campo di addestramento dei folletti segreti. Ha tirato tre fili di carta morbida lungo la porta. «Attenzione agenti segreti!» ha fischiato Pasticcio. «Bisogna passare sotto senza rompere il raggio laser di carta! Chi ci riesce riceve il titolo di Folletto Agile del Polo Nord!»","note":"ALT! ZONA SEGRETA! Ho montato i raggi laser dei folletti acrobati! Per uscire dalla stanza stamattina devi strisciare sotto come una pantera delle nevi senza strappare la carta! Sei pronta per la missione segreta? Metti la stellina numero 20 nel Barattolo!","prep_time":"3 min","spot":"Porta della camera di Lavinia","materials":["Nastro adesivo di carta (o carta igienica con nastro)","L'elfo posizionato vicino allo stipite","La stellina dorata n° 20"],"instructions":["Attacca 2-3 strisce di carta igienica o nastro di carta da un lato all'altro della porta a mezza altezza.","Posiziona l'elfo su una mensola o appeso che guarda la porta.","Attacca il biglietto sullo stipite della porta.","Appoggia sul biglietto la stellina dorata n° 20.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Striscia sotto il raggio laser come una piccola ninja senza farlo cadere!","director_tip":"Divertentissimo, risveglia Lavinia con una risata clamorosa ed è facilissimo da togliere in 5 secondi."},{"day":21,"title":"L'Angelo di Carta e la Neve Pulita","act":3,"act_title":"Atto 3: L'Accademia della Piccola Aiutante","challenge_tag":"Meraviglia & Delicatezza","scene_visual":"Pasticcio è sdraiato a braccia aperte su un foglio bianco o cartoncino blu, dove con una matita bianca o gessetto sono state disegnate le sagome delle sue 'ali d'angelo' aperte, con due batuffoli di cotone vicino!","story":"Quando nevica al Polo Nord, la prima cosa che fanno tutti gli elfi è buttarsi di schiena nella neve fresca e muovere le braccia su e giù per fare gli 'Angeli di Neve'. Pasticcio non ha trovato la neve in casa (perché la neve vera si scioglie al calduccio!), così si è steso su questo grande foglio e ha lasciato l'impronta delle sue ali magiche. «La vera neve è quella che portiamo nel cuore quando siamo sereni e leggeri!»","note":"GUARDA LE MIE ALI! Ho fatto l'angelo di neve sul foglio magico! Mancano solo tre giorni alla notte di Natale Lavinia: senti nell'aria il profumo della magia che cresce? Oggi aiutiamo Mamma e Papà a preparare la casa per la grande festa? Metti la stellina numero 21 nel Barattolo!","prep_time":"2 min","spot":"Tavolo o pavimento","materials":["Un foglio di carta","Una matita o gessetto per tracciare le ali attorno all'elfo","Due batuffoli di cotone","La stellina dorata n° 21"],"instructions":["Appoggia l'elfo sul foglio a braccia e gambe aperte.","Disegna il contorno delle ali con un tratto veloce.","Metti il biglietto accanto.","Appoggia sul biglietto la stellina dorata n° 21.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Fai un grande abbraccio con le braccia aperte a chi ami come se avessi due grandi ali d'angelo!","director_tip":"Zero sporco, zero farina sul pavimento (che crea disastri impossibili da pulire per i genitori), ma massima resa poetica."},{"day":22,"title":"La Pioggia di Cuoricini per la Famiglia","act":4,"act_title":"Atto 4: La Notte dei Miracoli","challenge_tag":"Amore di Famiglia & Gratitudine","scene_visual":"Pasticcio è seduto in mezzo a una dozzina di cuoricini di carta colorata ritagliati (o adesivi a cuore). Su 3 cuori più grandi ci sono scritte le parole: 'MAMMA', 'PAPÀ', 'LAVINIA'!","story":"Babbo Natale ha aperto il grande registro dei regali e ha chiamato Pasticcio via specchio magico: «Pasticcio, qual è il regalo più prezioso che hai trovato in quella casa?». Pasticcio non ha avuto dubbi. Non erano i giocattoli, non erano i dolci: era il calore degli abbracci di Lavinia, le risate a tavola con Mamma e Papà e la dolcezza con cui si vogliono bene ogni giorno. Così Pasticcio ha ritagliato una pioggia di cuori rossi per decorare la casa di amore puro.","note":"IL REGALO PIÙ BELLO! Ho cercato in tutta la casa e ho scoperto una cosa meravigliosa: il tesoro più grande non si compra nei negozi, siete VOI tre insieme! Mamma, Papà e Lavinia! Vi ho preparato una pioggia di cuoricini magici! Oggi ci scambiamo un abbraccio gigante a tre? Metti la stellina numero 22 nel Barattolo!","prep_time":"3 min","spot":"Tavolo della colazione","materials":["Post-it o cartoncini tagliati a cuore (bastano 6-8 cuoricini)","Pennarello rosso","La stellina dorata n° 22"],"instructions":["Ritaglia velocemente qualche cuoricino di carta.","Scrivi 'Mamma', 'Papà', 'Lavinia' su tre di essi.","Spargili attorno all'elfo sul tavolo.","Appoggia sul biglietto la stellina dorata n° 22.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Organizza un 'Super Abbraccio di Gruppo' stritolando forte Mamma e Papà insieme!","director_tip":"Momento ad altissimo impatto emotivo che unisce tutta la famiglia a 48 ore dal Natale."},{"day":23,"title":"La Slitta Pronta & Il Preavviso del Grande Diploma","act":4,"act_title":"Atto 4: La Notte dei Miracoli","challenge_tag":"Attesa della Vigilia & Preavviso Diploma","scene_visual":"Una piccola scatola da scarpe trasformata in slitta con un nastrino rosso, trainata da due macchinine o peluche di Lavinia! Pasticcio è seduto a bordo con una scatoletta di fiammiferi come 'valigia da viaggio' e guarda emozionato verso l'albero di Natale!","story":"Domani notte arriva la grande slitta d'oro di Babbo Natale! Pasticcio ha preparato le sue cose con un pizzico di malinconia e tanta felicità nel pancino. Ha costruito una slitta con una scatola e ci ha caricato la sua minuscola valigia. «È quasi ora di tornare al Polo Nord... ma prima voglio vedere Lavinia diventare la bambina più fiera e felice del mondo!» ha confidato alle stelle. «Babbo Natale ha preparato un documento d'oro solenne proprio per lei...»","note":"QUASI PRONTO! Stanotte ho preparato la mia mini-slitta: domani notte arriva Babbo Natale con le renne volanti e io salirò con lui sulla grande slitta! Ma tieni gli occhi ben aperti domani mattina sotto l'albero: Babbo Natale porterà una pergamena d'oro solenne proprio per te! Babbo Natale volerà sopra il mare Adriatico e le luci di Civitanova: la nostra casa si vede da lontano! Sei pronta per la notte più magica dell'anno? Metti la stellina numero 23 nel Barattolo!","prep_time":"3 min","spot":"Sotto l'albero di Natale","materials":["Una scatola da scarpe vuota","Un nastrino","1-2 macchinine o pupazzi a fare da 'motore'","La stellina dorata n° 23"],"instructions":["Metti l'elfo seduto dentro la scatola come una barchetta/slitta.","Lega un nastro davanti con due pupazzetti o macchinine.","Metti il biglietto appoggiato alla scatola che preannuncia la sorpresa solenne del giorno dopo.","Appoggia sul biglietto la stellina dorata n° 23.","📸 Al risveglio scatta una foto della reazione di Lavinia (per il Libro dei Ricordi)."],"mission":"Prepara insieme a Mamma e Papà il piattino con latte e biscotti per Babbo Natale e le carote per le renne!","director_tip":"Costruisce l'aspettativa per la Vigilia senza ansia, preannunciando chiaramente a Lavinia che l'indomani troverà il documento d'onore di Babbo Natale."},{"day":24,"title":"La Notte dei Miracoli & La Consegna del Gran Diploma d'Oro","act":4,"act_title":"Atto 4: La Notte dei Miracoli","challenge_tag":"Consegna Diploma & Saluto Finale","scene_visual":"Sotto l'albero di Natale, vicino ai regali, Pasticcio è seduto in posa regale: tra le sue braccia stringe la pergamena arrotolata del GRAN DIPLOMA D'ONORE DI SUPER AIUTANTE MAGICA legata con un grande fiocco rosso! Accanto c'è il suo biglietto d'addio e la scatola dei regali di Babbo Natale.","story":"Le campane della slitta suonano nella notte limpida e stellata sopra Civitanova Marche. Babbo Natale è sceso silenzioso nel salotto, ha posato i doni sotto l'albero e ha preso Pasticcio sulle ginocchia. «Sei stato bravissimo, Pasticcio! E Lavinia è stata una maestra straordinaria per te!». Babbo Natale ha tirato fuori dal mantello la pergamena con il sigillo dorato: il Gran Diploma di Super Aiutante Magica Ufficiale del Polo Nord, firmato per Lavinia. Pasticcio l'ha abbracciata forte al petto, pronto a consegnarla alla sua amica speciale al suo risveglio: «Non me ne vado per sempre, Lavinia: ogni volta che sarai gentile, ascolterai con amore e sorriderai, la mia magia sarà lì con te!»","note":"LAVINIA, SCIOGLI IL FIOCCO ROSSO! Guarda cosa tengo stretto tra le mie braccia: è il tuo GRAN DIPLOMA D'ONORE DI SUPER AIUTANTE MAGICA DEL POLO NORD firmato da Babbo Natale in persona! Hai riempito il Barattolo di luce e scoperto tutti i miei segreti! Leggilo con Mamma e Papà e appendilo in cameretta con orgoglio! Metti la 24ª e ultima stellina nel Barattolo: ora è pieno di luce! Le foto di tutte le nostre avventure diventeranno un libro tutto tuo! Io torno a casa con le renne, ma sarò sempre nel tuo cuore! BUON NATALE AMICA MIA!","prep_time":"3 min","spot":"Sotto l'albero di Natale accanto ai regali","materials":["Il Gran Diploma stampato a colori A4 (dal Tab 5) arrotolato con un bel nastro rosso","L'elfo posizionato che stringe il rotolo del diploma tra le braccia","Il biglietto finale di ringraziamento ben visibile davanti a lui","La stellina dorata n° 24 (l'ultima!)"],"instructions":["Stampa il Gran Diploma dal Tab 5 ('Centro Stampa') e arrotolalo legandolo con un bel nastro rosso.","Fai abbracciare il rotolo del Diploma alle braccine dell'elfo, posizionandolo sotto l'albero accanto ai doni.","Posa il biglietto davanti all'elfo in modo che la prima cosa che Lavinia legge sia: 'LAVINIA, SCIOGLI IL FIOCCO ROSSO!'.","Appoggia sul biglietto la stellina dorata n° 24, l'ultima.","Lavinia srotola il diploma, lo legge con voi e mette l'ultima stellina nel Barattolo: ora è pieno di luce!","📸 Scattate la foto di Lavinia con il Barattolo pieno e il Diploma: sarà l'ultima pagina del Libro dei Ricordi."],"mission":"Sciogli il fiocco rosso del Diploma, leggilo a voce alta insieme a Mamma e Papà e appendilo nella tua cameretta per sempre!","director_tip":"La chiusura perfetta: un momento di pura commozione e orgoglio per Lavinia. Nessun elemento è lasciato al caso: il nastro, il rotolo tra le braccia dell'elfo e il Barattolo pieno di luce creano un ricordo indelebile. La foto finale sarà l'ultima pagina del Libro dei Ricordi."}];
+        const SOS_SCENES = [{"id": "sos-1", "title": "L'Elfo nel Barattolo di Biscotti", "time": "45 sec", "materials": ["Un barattolo o scatola di biscotti aperta"], "scene": "Infila l'elfo a testa in giù nel barattolo dei biscotti con le gambette che spuntano fuori.", "note": "CRUNCH! Cercavo le gocce di cioccolato e sono rimasto incastrato! Tirami fuori tu per le caviglie!"}, {"id": "sos-2", "title": "La Nanna nella Scatola di Fazzoletti", "time": "40 sec", "materials": ["Una scatola di fazzoletti di carta"], "scene": "Infila l'elfo dentro la fessura della scatola di fazzoletti come se fosse un letto morbido con un fazzoletto che fa da coperta.", "note": "Zzz... questo letto di fazzoletti è più morbido delle nuvole del Polo Nord! Non fare rumore, dormo ancora 5 minuti!"}, {"id": "sos-3", "title": "L'Arrampicata sulla Maniglia", "time": "30 sec", "materials": ["Una maniglia di porta"], "scene": "Aggancia le braccia dell'elfo alla maniglia di una porta come se stesse facendo le trazioni.", "note": "Uno, due, tre... mi alleno per diventare forte come una renna! Oggi facciamo ginnastica insieme?"}, {"id": "sos-4", "title": "L'Elfo Camuffato tra i Peluche", "time": "45 sec", "materials": ["I peluche sul letto"], "scene": "Metti l'elfo in mezzo ai pupazzi di Lavinia nella stessa posizione, come se si fosse mimetizzato.", "note": "Cucù! Riuscirai a trovarmi in mezzo a tutti questi amici pelosi? Oggi giochiamo a nascondino!"}, {"id": "sos-5", "title": "Il Tè con la Tazza Rovesciata", "time": "40 sec", "materials": ["Una tazzina da caffè capovolta"], "scene": "Capovolgi una tazzina da caffè sul tavolo e metti l'elfo seduto sopra come su uno sgabello.", "note": "Ho aspettato che si raffreddasse il latte, ma poi mi è venuto sonno! Buongiorno principessa!"}, {"id": "sos-6", "title": "La Mascherina di Carta Igienica", "time": "50 sec", "materials": ["Un pezzo di carta igienica"], "scene": "Avvolgi due giri di carta igienica intorno alla pancia dell'elfo come una sciarpa gigante.", "note": "Brrr! Stanotte c'era uno spiffero gelido e mi sono fatto un cappotto su misura! Mi aiuti a srotolarlo?"}, {"id": "sos-7", "title": "L'Incastro nella Tasca del Cappotto", "time": "30 sec", "materials": ["Il cappotto di Lavinia appeso all'ingresso"], "scene": "Infila l'elfo nella tasca del cappotto o giacca di Lavinia con la testa che fa capolino.", "note": "Volevo venire a scuola con te stamattina! Ma poi mi sono ricordato che di giorno devo fare la statuina! Portami nel cuore!"}, {"id": "sos-8", "title": "La Corsa sullo Spazzolino", "time": "40 sec", "materials": ["Il bicchiere dello spazzolino in bagno"], "scene": "Infila l'elfo nel bicchiere dei denti con lo spazzolino stretto tra le braccia.", "note": "Ho provato a lavarmi il cappello con il dentifricio alla fragola! Profumo di buono! Ora tocca a te lavare i dentini da campionessa!"}, {"id": "sos-9", "title": "L'Elfo nel Rotolo di Carta", "time": "30 sec", "materials": ["Un tubo di carta igienica finito"], "scene": "Infila l'elfo dentro il tubo di cartone come dentro un cannocchiale.", "note": "Capitano a bordo! Dal mio cannocchiale vedo una bambina stupenda che sta per svegliarsi!"}, {"id": "sos-10", "title": "Il Bacio sullo Specchio", "time": "45 sec", "materials": ["Un post-it sullo specchio"], "scene": "Attacca un post-it sullo specchio del bagno con un cuore disegnato e l'elfo seduto sul rubinetto.", "note": "Ti ho lasciato un bacio magico sullo specchio! Guardati: sei bellissima quando sorridi!"}, {"id": "sos-11", "title": "L'Elfo a Cavallo della Banana", "time": "30 sec", "materials": ["Una banana"], "scene": "Metti l'elfo seduto a cavalcioni sopra una banana sul piano cucina.", "note": "GALOPPA CAVALLINO! Questa banana è la mia fidata cavalcatura delle colline tropicali! Dai, mangiala a colazione!"}, {"id": "sos-12", "title": "L'Abbraccio alla Bottiglia d'Acqua", "time": "30 sec", "materials": ["Una bottiglietta d'acqua"], "scene": "Fai abbracciare la bottiglietta all'elfo con le manine unite da un pezzettino di nastro.", "note": "Bere tanta acqua fresca fa brillare gli occhi e dà energia per correre! Oggi beviamo insieme?"}, {"id": "sos-13", "title": "L'Elfo sul Lampadario Basso", "time": "40 sec", "materials": ["Una lampada da tavolo o abat-jour"], "scene": "Posa l'elfo a cavalcioni sulla base o paralume di una lampada spenta.", "note": "Cercavo la stella cometa e sono salito sulla lampada! Che bel panorama da quassù!"}, {"id": "sos-14", "title": "Lo Zainetto Curioso", "time": "30 sec", "materials": ["Lo zaino di scuola di Lavinia"], "scene": "Infila l'elfo dentro lo zaino con la cerniera aperta a metà e la testa che sbircia.", "note": "Ho controllato: merendina c'è, quaderni ci sono... e tanto amore per la tua giornata!"}, {"id": "sos-15", "title": "Il Nastro Intorno alla Sedia", "time": "50 sec", "materials": ["La sedia della colazione e un nastro"], "scene": "Lega l'elfo alla spalliera della sedia di Lavinia con un nastro colorato come una cintura di sicurezza.", "note": "Tutti a tavola! Ti ho tenuto il posto migliore per fare colazione insieme! Ti voglio bene!"}];
+        const PREP_ITEMS = [{"id":"p1","cat":"stampa","name":"📜 Certificato Ufficiale di Adozione dell'Elfo (A4)","desc":"Da stampare dal Tab 5 e arrotolare con un nastrino per la mattina del 1° Dicembre (Giorno 1)."},{"id":"p2","cat":"casa","name":"🫙 Il Barattolo di Luce (vetro con coperchio, 1-2 litri) con fiocco dorato","desc":"Il contenitore che Lavinia riempirà di luce e conserverà negli anni. Consegnalo il 1° Dicembre con la stellina n° 1 sul fondo (Giorno 1)."},{"id":"p3","cat":"stampa","name":"🎓 Gran Diploma d'Onore di Super Aiutante (A4)","desc":"Da stampare dal Tab 5, arrotolare con nastro rosso e far abbracciare all'elfo la Notte della Vigilia (Giorno 24)."},{"id":"p4","cat":"stampa","name":"💌 I 24 Biglietti Parlati stampati e ritagliati","desc":"Stampali tutti insieme dal Tab 5 e tienili nella scatola da scarpe: la sera devi solo prenderne uno!"},{"id":"p5","cat":"stampa","name":"⚡ I 15 Biglietti SOS di Riserva ritagliati","desc":"Stampali per le serate di emergenza: già pronti all'uso nella scatola."},{"id":"p6","cat":"casa","name":"1 rotolo di carta igienica","desc":"Per la pista da sci del Giorno 5 e i raggi laser del Giorno 20"},{"id":"p7","cat":"casa","name":"Guanti di lana o calzini spaiati","desc":"Per i piedi nei guanti (Giorno 2) e la corsa coi sacchi (Giorno 18)"},{"id":"p8","cat":"casa","name":"Un tubo di cartone (carta igienica/scottex)","desc":"Per il megafono del Giorno 3 e il cannocchiale SOS"},{"id":"p9","cat":"casa","name":"Cucchiaio da cucina & cucchiaino da caffè","desc":"Per il bob da sci (Giorno 5) e il termometro del dottore (Giorno 17)"},{"id":"p10","cat":"casa","name":"Un pacchetto di batuffoli di cotone","desc":"Per il bagno di nuvole (Giorno 12) e i capelli arruffati (Giorno 16)"},{"id":"p11","cat":"casa","name":"Un rotolo di nastro adesivo di carta (facile da togliere)","desc":"Per fissare la funivia e la porta segreta senza rovinare i muri"},{"id":"p12","cat":"casa","name":"Spago da cucina o filo di lana (2 metri)","desc":"Per la spettacolare funivia/zipline del Giorno 13"},{"id":"p13","cat":"casa","name":"Nastro rosso per pacchetti regalo","desc":"Per legare il Diploma dell'elfo il 24 Dicembre e la slitta del 23"},{"id":"p14","cat":"casa","name":"Pennarello nero atossico","desc":"Per disegnare i frutti sorridenti del Giorno 14"},{"id":"p15","cat":"casa","name":"2 cerotti colorati","desc":"Per l'ospedale dei peluche del Giorno 17"},{"id":"p16","cat":"casa","name":"Scatola da scarpe vuota","desc":"Per fare la slitta di viaggio del Giorno 23 e contenere tutti i trucchi"},{"id":"p17","cat":"casa","name":"⭐ 24 stelline dorate (feltro, legno o metallo)","desc":"Una al giorno, da appoggiare ogni sera sul biglietto. Tienile in un sacchettino."},{"id":"p18","cat":"casa","name":"🎁 3 sorprese di tappa: campanellino (Giorno 6), pallina d'oro con nome (Giorno 12), ciondolo stella (Giorno 18)","desc":"Piccoli oggetti che le restano per sempre. Puoi cambiarli con quello che preferisci."},{"id":"p19","cat":"casa","name":"📸 Una foto al giorno della reazione di Lavinia","desc":"Servono per il Libro dei Ricordi: caricale dalla card del giorno (Tab 1)."}];
+
+        // TAPPE: sorprese di tappa (restano per sempre)
+        const TAPPE = {"6":{"n":1,"emoji":"🔔","name":"Il Campanellino della Slitta","gift":"un campanellino d'argento con nastrino","keep":"Si lega al fiocco del Barattolo e ogni Natale torna ad appendersi all'albero."},"12":{"n":2,"emoji":"✨","name":"La Pallina d'Oro con il tuo nome","gift":"una pallina d'oro per l'albero (meglio se con scritto «Lavinia 2026»)","keep":"Ogni Natale tornerà a brillare sull'albero: è la sua."},"18":{"n":3,"emoji":"🌟","name":"Il Ciondolo Stella","gift":"un ciondolo o charm a forma di stella (collana o braccialetto)","keep":"Si indossa: un pezzetto di Polo Nord sempre con lei."},"24":{"n":4,"emoji":"🎓","name":"Il Gran Diploma & il Barattolo pieno","gift":"il Diploma d'Onore e la foto del Barattolo pieno di luce","keep":"Diploma e Barattolo restano in cameretta; le foto diventano il Libro dei Ricordi."}};
+
+        // APPLICATION STATE
+        let state = {
+            elfName: 'Pasticcio',
+            completedDays: [],
+            checkedPrep: [],
+            activeTab: 'stories',
+            currentActFilter: 'all',
+            activePreview: 'cards'
+        };
+        let photos = {};
+
+        // LOAD FROM LOCALSTORAGE
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    state = { ...state, ...parsed };
+                }
+            } catch(e) {
+                console.warn('LocalStorage error:', e);
+            }
+            const input = document.getElementById('elf-name-input');
+            if (input) input.value = state.elfName || 'Pasticcio';
+        }
+
+        // SAVE TO LOCALSTORAGE
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch(e) {
+                console.warn('Save error:', e);
+            }
+        }
+
+        function getElfName() {
+            return (state.elfName && state.elfName.trim()) ? state.elfName.trim() : 'Pasticcio';
+        }
+
+        function applyElf(text) {
+            if (!text) return '';
+            return text.replace(/\{ELF\}/g, getElfName());
+        }
+
+        // TOAST
+        let toastTimer = null;
+        function showToast(msg, icon = '✨') {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            document.getElementById('toast-icon').textContent = icon;
+            t.classList.remove('translate-y-20', 'opacity-0');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                t.classList.add('translate-y-20', 'opacity-0');
+            }, 2600);
+        }
+
+        // COPY TO CLIPBOARD
+        function copyText(txt, msg) {
+            const ta = document.createElement('textarea');
+            ta.value = txt;
+            ta.setAttribute('readonly', '');
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                showToast(msg || 'Testo copiato!', '📋');
+            } catch(e) {
+                navigator.clipboard?.writeText(txt).then(() => showToast(msg || 'Testo copiato!', '📋'));
+            }
+            document.body.removeChild(ta);
+        }
+
+        function copyDayNote(dayNum) {
+            const d = DAYS.find(x => x.day === dayNum);
+            if (d) copyText(applyElf(d.note), `Biglietto Giorno ${dayNum} copiato!`);
+        }
+
+        function copySosNote(id) {
+            const s = SOS_SCENES.find(x => x.id === id);
+            if (s) copyText(applyElf(s.note), 'Biglietto SOS copiato!');
+        }
+
+        // TOGGLE DAY STATUS
+        function toggleDay(dayNum) {
+            if (state.completedDays.includes(dayNum)) {
+                state.completedDays = state.completedDays.filter(x => x !== dayNum);
+            } else {
+                state.completedDays.push(dayNum);
+                showToast(`Giorno ${dayNum} completato con successo!`, '🌟');
+            }
+            saveState();
+            updateProgress();
+            renderDaysGrid();
+            renderCheatSheetTable();
+        }
+
+        // TOGGLE PREP ITEM
+        function togglePrepItem(id) {
+            if (state.checkedPrep.includes(id)) {
+                state.checkedPrep = state.checkedPrep.filter(x => x !== id);
+            } else {
+                state.checkedPrep.push(id);
+            }
+            saveState();
+            renderBoxChecklist();
+        }
+
+        // UPDATE PROGRESS
+        function updateProgress() {
+            const count = state.completedDays.length;
+            const pct = Math.round((count / 24) * 100);
+            document.getElementById('progress-done-count').textContent = count;
+            document.getElementById('progress-bar-fill').style.width = `${pct}%`;
+
+            // Update all elf name spans
+            document.querySelectorAll('.elf-name-text').forEach(el => {
+                el.textContent = getElfName();
+            });
+            document.getElementById('header-elf-name').textContent = getElfName();
+            renderTreasureTrack();
+        }
+
+        // TAB SWITCHING
+        function switchTab(tabId) {
+            state.activeTab = tabId;
+            saveState();
+
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            const p = document.getElementById(`panel-${tabId}`);
+            if (p) p.classList.add('active');
+
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.className = 'tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 whitespace-nowrap bg-white/15 text-white hover:bg-white/25 cursor-pointer';
+            });
+            const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = 'tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 whitespace-nowrap bg-white text-xmas-red shadow cursor-pointer';
+            }
+        }
+
+        // ACT FILTERING
+        function filterAct(act) {
+            state.currentActFilter = act;
+            document.querySelectorAll('.act-filter-btn').forEach(b => {
+                b.className = 'act-filter-btn px-3 py-1 rounded-xl text-xs font-bold bg-gray-100 text-gray-700 hover:bg-amber-100 cursor-pointer transition';
+            });
+            const activeBtn = document.getElementById(`btn-act-${act}`);
+            if (activeBtn) activeBtn.className = 'act-filter-btn px-3 py-1 rounded-xl text-xs font-bold bg-xmas-red text-white cursor-pointer transition';
+            renderDaysGrid();
+        }
+
+        // ---------- TESORI, VIDEO, FOTO, BACKUP ----------
+        function renderTreasureTrack() {
+            const el = document.getElementById('treasure-track');
+            if (!el) return;
+            const done = state.completedDays.length;
+            const keys = Object.keys(TAPPE).map(Number);
+            const next = keys.find(k => !state.completedDays.includes(k));
+            const chips = keys.map(k => {
+                const T = TAPPE[k];
+                const ok = state.completedDays.includes(k);
+                return '<div class="rounded-2xl border-2 p-2.5 text-center ' + (ok ? 'bg-amber-100 border-amber-400' : 'bg-white border-gray-200') + '">'
+                    + '<div class="text-2xl ' + (ok ? '' : 'grayscale opacity-50') + '">' + T.emoji + '</div>'
+                    + '<div class="text-[10px] font-bold uppercase tracking-wide ' + (ok ? 'text-amber-900' : 'text-gray-500') + '">Giorno ' + k + '</div>'
+                    + '<div class="text-[11px] leading-tight ' + (ok ? 'text-amber-950 font-semibold' : 'text-gray-500') + '">' + T.name + '</div>'
+                    + '</div>';
+            }).join('');
+            el.innerHTML = '<div class="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border-2 border-amber-200 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 items-center">'
+                + '<div class="flex items-center gap-3"><div class="text-5xl">🫙</div><div>'
+                + '<div class="font-display text-2xl font-bold text-gray-900 leading-none">' + done + ' <span class="text-base font-semibold text-gray-500">/ 24 stelline</span></div>'
+                + '<div class="text-xs text-gray-600 mt-1">' + (next ? 'Prossima sorpresa: giorno ' + next + ' · ' + TAPPE[next].name : 'Il Barattolo è pieno di luce!') + '</div>'
+                + '</div></div>'
+                + '<div class="grid grid-cols-2 sm:grid-cols-4 gap-2">' + chips + '</div></div>';
+        }
+
+        function tappaBannerHtml(d) {
+            const T = TAPPE[d.day];
+            if (!T) return '';
+            return '<div class="mb-3.5 bg-gradient-to-r from-amber-100 to-yellow-50 rounded-2xl p-3.5 border-2 border-amber-400">'
+                + '<div class="text-[11px] font-bold uppercase tracking-wider text-amber-900">🎁 Sorpresa di tappa ' + T.n + ' di 4 · ' + T.emoji + ' ' + T.name + '</div>'
+                + '<div class="text-xs text-amber-950 mt-1"><strong>Cosa serve:</strong> ' + T.gift + '.</div>'
+                + '<div class="text-xs text-amber-950"><strong>Le resta per sempre:</strong> ' + T.keep + '</div></div>';
+        }
+
+        function videoBlockHtml(d) {
+            if (d.day !== 1) return '';
+            return '<div class="mb-3.5 bg-sky-50 rounded-2xl p-3.5 border border-sky-200">'
+                + '<div class="text-[11px] font-bold uppercase tracking-wider text-sky-900 mb-1.5">🎬 Videomessaggio di Babbo Natale (circa 2 minuti)</div>'
+                + '<video controls preload="none" class="w-full rounded-xl bg-black" src="Babbo%20Natale.mp4"></video>'
+                + '<p class="text-[11px] text-sky-900 mt-1.5">Il file «Babbo Natale.mp4» deve stare nella stessa cartella di questa pagina. Per la mattina del 1° Dicembre copialo su chiavetta o telefono collegato alla TV e controlla prima che si veda.</p></div>';
+        }
+
+        function photoBlockHtml(d) {
+            const p = photos[d.day];
+            return '<div class="p-2.5 bg-pink-50/80 rounded-xl border border-pink-200 text-[11px] text-pink-950 flex items-center gap-3">'
+                + (p ? '<img src="' + p + '" alt="Foto del ' + d.day + ' Dicembre" class="w-16 h-16 rounded-lg object-cover border border-pink-300 shrink-0">' : '<span class="text-xl shrink-0">📸</span>')
+                + '<div class="flex-1"><strong>Foto per il Libro dei Ricordi:</strong> ' + (p ? 'salvata su questo dispositivo.' : 'scatta la reazione di Lavinia e caricala qui.') + '</div>'
+                + '<label class="px-2.5 py-1.5 rounded-lg bg-white border border-pink-300 font-bold cursor-pointer hover:bg-pink-100 shrink-0">' + (p ? 'Cambia' : 'Aggiungi')
+                + '<input type="file" accept="image/*" class="hidden" onchange="addPhoto(' + d.day + ', this)"></label>'
+                + (p ? '<button type="button" onclick="removePhoto(' + d.day + ')" class="text-pink-800 underline font-semibold cursor-pointer shrink-0">Rimuovi</button>' : '')
+                + '</div>';
+        }
+
+        const PHOTO_DB = 'elfo_photos_lavinia_v1';
+        function photoDb() {
+            return new Promise((res, rej) => {
+                const r = indexedDB.open(PHOTO_DB, 1);
+                r.onupgradeneeded = () => r.result.createObjectStore('photos');
+                r.onsuccess = () => res(r.result);
+                r.onerror = () => rej(r.error);
+            });
+        }
+        async function photoPut(day, data) {
+            const db = await photoDb();
+            return new Promise((res, rej) => {
+                const tx = db.transaction('photos', 'readwrite');
+                tx.objectStore('photos').put(data, Number(day));
+                tx.oncomplete = () => res();
+                tx.onerror = () => rej(tx.error);
+            });
+        }
+        async function photoDel(day) {
+            const db = await photoDb();
+            return new Promise((res, rej) => {
+                const tx = db.transaction('photos', 'readwrite');
+                tx.objectStore('photos').delete(Number(day));
+                tx.oncomplete = () => res();
+                tx.onerror = () => rej(tx.error);
+            });
+        }
+        async function photoLoadAll() {
+            const db = await photoDb();
+            return new Promise((res, rej) => {
+                const out = {};
+                const c = db.transaction('photos').objectStore('photos').openCursor();
+                c.onsuccess = e => {
+                    const cur = e.target.result;
+                    if (cur) { out[cur.key] = cur.value; cur.continue(); } else res(out);
+                };
+                c.onerror = () => rej(c.error);
+            });
+        }
+        function shrinkImage(file) {
+            return new Promise((res, rej) => {
+                const img = new Image();
+                const url = URL.createObjectURL(file);
+                img.onload = () => {
+                    const s = Math.min(1, 1400 / Math.max(img.width, img.height));
+                    const c = document.createElement('canvas');
+                    c.width = Math.round(img.width * s);
+                    c.height = Math.round(img.height * s);
+                    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+                    URL.revokeObjectURL(url);
+                    res(c.toDataURL('image/jpeg', 0.82));
+                };
+                img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('immagine non valida')); };
+                img.src = url;
+            });
+        }
+        function refreshPhotoViews() {
+            renderDaysGrid();
+            renderBookPages();
+            if (state.activePreview === 'book') switchPreview('book');
+        }
+        async function addPhoto(day, input) {
+            const f = input.files && input.files[0];
+            if (!f) return;
+            try {
+                const data = await shrinkImage(f);
+                photos[day] = data;
+                let saved = true;
+                try { await photoPut(day, data); } catch (e) { saved = false; }
+                refreshPhotoViews();
+                if (saved) showToast('Foto del ' + day + ' Dicembre salvata!', '📸');
+                else showToast('Foto visibile ora, ma NON salvata: scarica il backup prima di chiudere', '⚠️');
+            } catch (e) {
+                showToast('Non sono riuscito a salvare la foto', '⚠️');
+            }
+            input.value = '';
+        }
+        async function removePhoto(day) {
+            try { await photoDel(day); } catch (e) {}
+            delete photos[day];
+            refreshPhotoViews();
+        }
+        function exportBackup() {
+            try {
+                const data = { app: 'elfo-lavinia', version: 1, state: { elfName: state.elfName, completedDays: state.completedDays, checkedPrep: state.checkedPrep }, photos: photos };
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: 'application/json' }));
+                a.download = 'backup-elfo-lavinia-' + new Date().toISOString().slice(0, 10) + '.json';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+                showToast('Backup scaricato!', '💾');
+            } catch (e) {
+                showToast('Backup non riuscito', '⚠️');
+            }
+        }
+        function importBackup(input) {
+            const f = input.files && input.files[0];
+            if (!f) return;
+            const r = new FileReader();
+            r.onload = async () => {
+                try {
+                    const d = JSON.parse(r.result);
+                    if (d.app !== 'elfo-lavinia') throw new Error('formato');
+                    state = { ...state, ...d.state };
+                    saveState();
+                    for (const k of Object.keys(d.photos || {})) {
+                        photos[k] = d.photos[k];
+                        await photoPut(k, d.photos[k]);
+                    }
+                    document.getElementById('elf-name-input').value = state.elfName || 'Pasticcio';
+                    updateProgress();
+                    renderDaysGrid();
+                    renderCheatSheetTable();
+                    renderAllPrintSheets();
+                    showToast('Backup ripristinato!', '✅');
+                } catch (e) {
+                    showToast('File di backup non valido', '⚠️');
+                }
+            };
+            r.readAsText(f);
+            input.value = '';
+        }
+
+        function renderBookPages() {
+            const el = document.getElementById('print-book-content');
+            if (!el) return;
+            el.innerHTML = DAYS.map(d => {
+                const p = photos[d.day];
+                const pic = p
+                    ? '<img src="' + p + '" alt="Foto del ' + d.day + ' Dicembre" style="width: 100%; max-height: 85mm; object-fit: cover; border-radius: 10px; margin-bottom: 10px;">'
+                    : '<div style="border: 2px dashed #FCD34D; border-radius: 10px; height: 56px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #B45309; margin-bottom: 10px;">📸 Qui la foto del ' + d.day + ' Dicembre</div>';
+                return '<div class="print-book-page">'
+                    + '<div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #F59E0B; padding-bottom: 4px; margin-bottom: 8px;">'
+                    + '<h2 style="font-size: 18px; font-weight: bold; color: #78350F; margin: 0;">Capitolo ' + d.day + ': ' + d.title + '</h2>'
+                    + '<span style="font-size: 11px; font-weight: bold; color: #B45309;">' + d.act_title + '</span></div>'
+                    + pic
+                    + '<p style="font-family: \'Lora\', serif; font-size: 13px; line-height: 1.6; color: #1F2937; margin: 0 0 10px 0;">' + applyElf(d.story) + '</p>'
+                    + '<div style="background: #FEF3C7; border-left: 4px solid #D97706; padding: 6px 10px; font-size: 11px; color: #92400E;">'
+                    + '<strong>Il consiglio del folletto per oggi:</strong> ' + applyElf(d.mission) + '</div></div>';
+            }).join('') + '<div class="print-book-page" style="text-align: center;">'
+                + '<div style="font-size: 30px;">🫙✨</div>'
+                + '<h2 style="font-size: 20px; font-weight: bold; color: #78350F; margin: 6px 0;">Il Barattolo è pieno di luce</h2>'
+                + '<p style="font-family: \'Lora\', serif; font-size: 13px; color: #1F2937; line-height: 1.6;">Per Lavinia, con tutto l\'amore di Mamma e Papà.<br>Civitanova Marche, Natale 2026.</p></div>';
+        }
+
+        // RENDER DAYS GRID (TAB 1)
+        function renderDaysGrid() {
+            const container = document.getElementById('days-grid-container');
+            const filtered = DAYS.filter(d => {
+                if (state.currentActFilter === 'all') return true;
+                return d.act === parseInt(state.currentActFilter, 10);
+            });
+
+            container.innerHTML = filtered.map(d => {
+                const isDone = state.completedDays.includes(d.day);
+                return `
+                    <article class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border-2 transition flex flex-col justify-between ${isDone ? 'border-green-300 bg-green-50/20' : 'border-gray-200 hover:border-amber-300'}">
+                        <div>
+                            <!-- Header Card -->
+                            <div class="flex items-start justify-between gap-3 mb-3 pb-3 border-b border-gray-100">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-2xl ${isDone ? 'bg-xmas-pine' : 'bg-xmas-red'} text-white font-display font-bold flex flex-col items-center justify-center shrink-0 shadow-sm">
+                                        <span class="text-[9px] uppercase tracking-wider opacity-80 leading-none">Dic</span>
+                                        <span class="text-xl leading-tight">${d.day}</span>
+                                    </div>
+                                    <div>
+                                        <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                                                ${d.challenge_tag}
+                                            </span>
+                                            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                                                ⏱ ${d.prep_time}
+                                            </span>
+                                            <span class="text-[10px] text-gray-500">📍 ${d.spot}</span>
+                                        </div>
+                                        <h3 class="font-display text-lg font-bold text-gray-900 leading-snug">${d.title}</h3>
+                                    </div>
+                                </div>
+
+                                <label class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border cursor-pointer transition shrink-0 ${isDone ? 'bg-green-100 border-green-300 text-xmas-pine' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-green-50'}">
+                                    <input type="checkbox" class="w-4 h-4 accent-xmas-pine cursor-pointer" ${isDone ? 'checked' : ''} onchange="toggleDay(${d.day})">
+                                    <span class="text-xs font-bold">${isDone ? 'Fatto!' : 'Fatto'}</span>
+                                </label>
+                            </div>
+
+                            ${tappaBannerHtml(d)}
+                            ${videoBlockHtml(d)}
+                            <!-- 1. LA SCENA VISIVA (CHE VEDE LAVINIA) -->
+                            <div class="mb-3.5 bg-gradient-to-r from-red-50 to-orange-50/70 rounded-2xl p-3.5 border border-red-200">
+                                <div class="flex items-center gap-1.5 text-xmas-red text-[11px] font-bold uppercase tracking-wider mb-1">
+                                    <span>👀</span> Cosa vede Lavinia al risveglio (Scena Visiva):
+                                </div>
+                                <p class="text-xs sm:text-sm font-semibold text-gray-900 leading-relaxed">
+                                    ${applyElf(d.scene_visual)}
+                                </p>
+                            </div>
+
+                            <!-- 2. LA STORIA DA LEGGERE A VOCE ALTA -->
+                            <div class="mb-3.5 bg-amber-50/70 rounded-2xl p-4 border border-amber-200">
+                                <div class="flex items-center justify-between gap-2 mb-1.5">
+                                    <span class="text-[11px] font-bold uppercase tracking-wider text-amber-900">
+                                        📖 La Storia del Giorno (Leggi a Lavinia · 1 min)
+                                    </span>
+                                    <button type="button" onclick="copyText('${applyElf(d.story).replace(/'/g, "\\'")}', 'Storia Giorno ${d.day} copiata!')" class="text-[11px] text-amber-800 hover:text-amber-950 font-semibold cursor-pointer">
+                                        📋 Copia
+                                    </button>
+                                </div>
+                                <p class="font-book text-xs sm:text-sm text-gray-800 leading-relaxed italic">
+                                    “${applyElf(d.story)}”
+                                </p>
+                            </div>
+
+                            <!-- 3. ISTRUZIONI DI REGIA (2-3 MINUTI) -->
+                            <div class="mb-3 bg-gray-50 rounded-2xl p-3 border border-gray-200 text-xs text-gray-700 space-y-1.5">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-gray-800 text-[10px] uppercase">🧰 Materiali & Stampe necessarie:</span>
+                                    <span class="text-[10px] text-gray-500">${d.materials.join(' • ')}</span>
+                                </div>
+                                <div class="font-bold text-xmas-pine text-[10px] uppercase pt-1">🎬 Come allestirlo stasera (Passo-passo):</div>
+                                <ol class="space-y-1 pl-1">
+                                    ${d.instructions.map((inst, i) => `
+                                        <li class="flex items-start gap-2">
+                                            <span class="w-4 h-4 rounded-full bg-green-100 text-xmas-pine font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">${i + 1}</span>
+                                            <span>${applyElf(inst)}</span>
+                                        </li>
+                                    `).join('')}
+                                </ol>
+                            </div>
+                        </div>
+
+                        <!-- 4. BIGLIETTO DI PASTICCIO + MISSIONE LAVINIA -->
+                        <div class="space-y-3 pt-2">
+                            <!-- Biglietto Parlato -->
+                            <div class="bg-xmas-cream rounded-2xl p-3.5 border-2 border-dashed border-xmas-red/40">
+                                <div class="flex items-center justify-between gap-2 mb-1">
+                                    <span class="text-[11px] font-bold uppercase tracking-wider text-xmas-red">💌 Il Biglietto Parlato di ${getElfName()}</span>
+                                    <button type="button" onclick="copyDayNote(${d.day})" class="text-[11px] font-semibold bg-white hover:bg-red-50 text-xmas-red border border-red-200 px-2 py-0.5 rounded-lg transition cursor-pointer">
+                                        📋 Copia
+                                    </button>
+                                </div>
+                                <p class="font-hand text-base sm:text-lg text-gray-800 leading-snug">
+                                    “${applyElf(d.note)}”
+                                </p>
+                            </div>
+
+                            <!-- Missione di Lavinia -->
+                            <div class="p-2.5 bg-purple-50/80 rounded-xl border border-purple-200 text-[11px] text-purple-950 flex items-start gap-2">
+                                <span class="text-sm shrink-0">🎯</span>
+                                <div><strong>La Missione di Lavinia:</strong> ${applyElf(d.mission)}</div>
+                            </div>
+
+                            ${photoBlockHtml(d)}
+
+                            <!-- Consiglio Genitori al risveglio -->
+                            <div class="p-2.5 bg-blue-50/80 rounded-xl border border-blue-200 text-[11px] text-blue-950 flex items-start gap-2">
+                                <span class="text-sm shrink-0">💡</span>
+                                <div><strong>Consiglio di Regia per Mamma e Papà:</strong> ${applyElf(d.director_tip)}</div>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        // RENDER CHEAT SHEET TABLE (TAB 2)
+        function renderCheatSheetTable() {
+            const tbody = document.getElementById('cheatsheet-tbody');
+            const search = (document.getElementById('cheatsheet-search')?.value || '').toLowerCase().trim();
+
+            const rows = DAYS.filter(d => {
+                if (!search) return true;
+                const full = (d.title + ' ' + d.scene_visual + ' ' + d.materials.join(' ') + ' ' + d.spot + ' ' + d.challenge_tag).toLowerCase();
+                return full.includes(search);
+            }).map(d => {
+                const isDone = state.completedDays.includes(d.day);
+                return `
+                    <tr class="hover:bg-amber-50/50 transition ${isDone ? 'bg-green-50/30 text-gray-500' : ''}">
+                        <td class="p-3 text-center font-display font-bold text-sm ${isDone ? 'text-xmas-pine' : 'text-xmas-red'}">
+                            ${d.day}
+                        </td>
+                        <td class="p-3">
+                            <div class="font-bold text-gray-900 leading-tight">${d.title}</div>
+                            <div class="text-[11px] text-gray-600 mt-0.5 line-clamp-2">${applyElf(d.scene_visual)}</div>
+                        </td>
+                        <td class="p-3 text-gray-700 text-xs">${d.spot}</td>
+                        <td class="p-3 text-gray-600 text-xs">${d.materials.slice(0, 3).join(', ')}</td>
+                        <td class="p-3 text-center text-xs font-semibold text-gray-500">${d.prep_time}</td>
+                        <td class="p-3 text-center">
+                            <input type="checkbox" class="w-4 h-4 accent-xmas-pine cursor-pointer" ${isDone ? 'checked' : ''} onchange="toggleDay(${d.day})">
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            tbody.innerHTML = rows || `<tr><td colspan="6" class="p-6 text-center text-gray-400">Nessuna scena trovata</td></tr>`;
+        }
+
+        // RENDER BOX CHECKLIST (TAB 3)
+        function renderBoxChecklist() {
+            const container = document.getElementById('box-checklist-container');
+            container.innerHTML = PREP_ITEMS.map(item => {
+                const isChecked = state.checkedPrep.includes(item.id);
+                return `
+                    <label class="p-3.5 rounded-2xl border transition flex items-start gap-3 cursor-pointer ${isChecked ? 'bg-emerald-100/60 border-emerald-300 text-emerald-900' : 'bg-white border-gray-200 hover:border-emerald-300'}">
+                        <input type="checkbox" class="w-4 h-4 accent-emerald-600 cursor-pointer mt-1 shrink-0" ${isChecked ? 'checked' : ''} onchange="togglePrepItem('${item.id}')">
+                        <div class="text-xs">
+                            <div class="font-bold text-gray-900 leading-snug ${isChecked ? 'line-through opacity-75' : ''}">${item.name}</div>
+                            <div class="text-[11px] text-gray-600 mt-0.5">${item.desc}</div>
+                        </div>
+                    </label>
+                `;
+            }).join('');
+        }
+
+        // RENDER SOS SCENES (TAB 4)
+        function renderSosScenes() {
+            const container = document.getElementById('sos-cards-container');
+            container.innerHTML = SOS_SCENES.map(s => `
+                <article class="bg-white rounded-2xl p-4 shadow-sm border border-red-200 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-1.5">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-800">
+                                ⏱ ${s.time}
+                            </span>
+                            <span class="text-xs text-gray-500">${s.materials.join(', ')}</span>
+                        </div>
+                        <h3 class="font-display font-bold text-gray-900 text-base leading-snug mb-1">${s.title}</h3>
+                        <p class="text-xs text-gray-700 leading-relaxed mb-3">${applyElf(s.scene)}</p>
+                    </div>
+
+                    <div class="bg-red-50/60 p-2.5 rounded-xl border border-red-200">
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <span class="text-[10px] font-bold text-xmas-red uppercase">💌 Biglietto rapido:</span>
+                            <button type="button" onclick="copySosNote('${s.id}')" class="text-[10px] font-semibold text-xmas-red hover:underline cursor-pointer">📋 Copia</button>
+                        </div>
+                        <p class="font-hand text-sm text-gray-800 leading-tight">“${applyElf(s.note)}”</p>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        // RENDER PRINT SHEETS & PREVIEWS (TAB 5)
+        function renderAllPrintSheets() {
+            // 1. CARDS GRID (24 DAYS)
+            const cardsGrid = document.getElementById('print-cards-grid');
+            cardsGrid.innerHTML = DAYS.map(d => `
+                <div class="print-card-item">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #FECACA; padding-bottom: 4px; margin-bottom: 6px;">
+                        <span style="font-weight: bold; color: #B91C1C; font-size: 13px;">Giorno ${d.day} Dicembre · ${d.challenge_tag}</span>
+                        <span style="font-size: 11px; color: #4B5563;">Da: ${getElfName()}</span>
+                    </div>
+                    <div style="font-size: 11px; color: #374151; margin-bottom: 6px;">
+                        <strong>Scena al risveglio:</strong> ${applyElf(d.scene_visual)}
+                    </div>
+                    <div style="background: #FFFDF9; border: 1px dashed #F87171; border-radius: 8px; padding: 8px; font-family: 'Patrick Hand', cursive; font-size: 14px; color: #1F2937; line-height: 1.3;">
+                        “${applyElf(d.note)}”
+                    </div>
+                    <div style="margin-top: 6px; font-size: 10px; color: #6B7280; font-style: italic;">
+                        🎯 Missione: ${applyElf(d.mission)}
+                    </div>
+                </div>
+            `).join('');
+
+            // 2. SOS CARDS GRID (15 SCENES)
+            const sosCardsGrid = document.getElementById('print-sos-cards-grid');
+            sosCardsGrid.innerHTML = SOS_SCENES.map((s, idx) => `
+                <div class="print-card-item" style="border-color: #EA580C !important;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #FED7AA; padding-bottom: 4px; margin-bottom: 6px;">
+                        <span style="font-weight: bold; color: #C2410C; font-size: 13px;">Riserva SOS ${idx + 1}: ${s.title}</span>
+                        <span style="font-size: 10px; color: #9A3412;">⏱ ${s.time}</span>
+                    </div>
+                    <div style="font-size: 11px; color: #374151; margin-bottom: 6px;">
+                        <strong>Scena rapida:</strong> ${applyElf(s.scene)}
+                    </div>
+                    <div style="background: #FFFDF9; border: 1px dashed #FB923C; border-radius: 8px; padding: 8px; font-family: 'Patrick Hand', cursive; font-size: 14px; color: #1F2937; line-height: 1.3;">
+                        “${applyElf(s.note)}”
+                    </div>
+                </div>
+            `).join('');
+
+            // 3. STORYBOOK PAGES (con foto)
+            renderBookPages();
+
+            // Default preview
+            switchPreview('cards');
+        }
+
+        function switchPreview(type) {
+            state.activePreview = type;
+            document.querySelectorAll('.prev-btn').forEach(b => {
+                b.className = 'prev-btn text-xs font-bold px-3 py-1 rounded-xl bg-gray-100 text-gray-700 cursor-pointer';
+            });
+            const btn = document.getElementById(`prev-btn-${type}`);
+            if (btn) btn.className = 'prev-btn text-xs font-bold px-3 py-1 rounded-xl bg-xmas-red text-white cursor-pointer';
+
+            const box = document.getElementById('screen-preview-box');
+            if (type === 'cards') {
+                box.innerHTML = document.getElementById('print-cards-grid').innerHTML;
+            } else if (type === 'sos-cards') {
+                box.innerHTML = document.getElementById('print-sos-cards-grid').innerHTML;
+            } else if (type === 'book') {
+                box.innerHTML = document.getElementById('print-book-content').innerHTML;
+            } else if (type === 'adopt') {
+                box.innerHTML = document.getElementById('print-sheet-adopt').innerHTML;
+            } else if (type === 'diploma') {
+                box.innerHTML = document.getElementById('print-sheet-diploma').innerHTML;
+            }
+        }
+
+        // TRIGGER PRINT WITH COMPLETE SCREEN UI SUPPRESSION
+        function triggerPrint(mode) {
+            document.body.classList.remove('print-mode-cards', 'print-mode-sos-cards', 'print-mode-book', 'print-mode-adopt', 'print-mode-diploma');
+            document.body.classList.add(`print-mode-${mode}`);
+
+            // Request animation frame gives browser time to update layout
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    window.print();
+                }, 80);
+            });
+        }
+
+        // CLEAN UP AFTER PRINT DIALOG CLOSES
+        window.addEventListener('afterprint', () => {
+            document.body.classList.remove('print-mode-cards', 'print-mode-sos-cards', 'print-mode-book', 'print-mode-adopt', 'print-mode-diploma');
+        });
+
+        // FALLBACK FOR NATIVE CTRL+P / BROWSER MENU PRINT
+        window.addEventListener('beforeprint', () => {
+            const modes = ['print-mode-cards', 'print-mode-sos-cards', 'print-mode-book', 'print-mode-adopt', 'print-mode-diploma'];
+            if (!modes.some(m => document.body.classList.contains(m))) {
+                document.body.classList.add('print-mode-cards');
+            }
+        });
+
+        // INITIALIZATION
+        document.addEventListener('DOMContentLoaded', () => {
+            loadState();
+
+            const nameInput = document.getElementById('elf-name-input');
+            nameInput.addEventListener('input', (e) => {
+                state.elfName = e.target.value;
+                saveState();
+                updateProgress();
+                renderDaysGrid();
+                renderCheatSheetTable();
+                renderSosScenes();
+                renderAllPrintSheets();
+            });
+
+            updateProgress();
+            renderDaysGrid();
+            renderCheatSheetTable();
+            renderBoxChecklist();
+            renderSosScenes();
+            renderAllPrintSheets();
+            switchTab(state.activeTab || 'stories');
+            photoLoadAll().then(p => { photos = p; refreshPhotoViews(); }).catch(() => {});
+        });
+    </script>
+</body>
+</html>
